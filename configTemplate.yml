@@ -1,0 +1,15 @@
+coincheck:
+  ACCESS_KEY: 
+  API_SECRET: 
+
+zaif:
+  ACCESS_KEY: 
+  API_SECRET: 
+
+bitflyer:
+  ACCESS_KEY: 
+  API_SECRET: 
+
+krakenex:
+  ACCESS_KEY: 
+  API_SECRET: 
