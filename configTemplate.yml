@@ -10,6 +10,8 @@ bitflyer:
   ACCESS_KEY: 
   API_SECRET: 
 
-krakenex:
+kraken:
   ACCESS_KEY: 
   API_SECRET: 
+
+amount:
