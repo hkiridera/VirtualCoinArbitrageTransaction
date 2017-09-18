@@ -1,7 +1,6 @@
-"""This is a test program."""
-
 # coding:utf-8
 #!/usr/bin/env python
+"""共通関数"""
 
 import time
 import requests
@@ -11,6 +10,15 @@ def nonce():
     docstring
     """
     _nonce = int(time.time() * 1000000000)
+    print "nonce : " + str(_nonce)
+    return _nonce
+
+def nonce2():
+    """
+    docstring
+    """
+    _nonce = float(time.time())
+    print "nonce : " + str(_nonce)
     return _nonce
 
 def get(url, headers=None, params=None):

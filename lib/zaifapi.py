@@ -1,17 +1,14 @@
-"""This is a test program."""
-
 # coding:utf-8
 #!/usr/bin/env python
+"""zaifのapiを実行する."""
 
-import requests
-import json
-import yaml
-import time
 import hmac
 import hashlib
-import urllib
-import base64
+import json
 import myutils
+import urllib
+import yaml
+
 
 class ZaifAPI():
     """
@@ -45,18 +42,17 @@ class ZaifAPI():
         Uncertain
         """
 
-        nonce = myutils.nonce()
-        url_path = "tapi"
+        nonce = myutils.nonce2()
         data = {
             "method": "trade",
             "currency_pair": "btc_jpy",
             "action": "ask",
             "price": rate,
-            "amount": amount
-        }
+            "amount": amount,
 
-        data['nonce'] = nonce,
-        data["method"] = "trade"
+            'nonce': nonce,
+            "method": "trade"
+        }
 
         signature = self._signature(data=data)
         #message  = str(nonce) + url_path + urllib.urlencode(data)
@@ -68,8 +64,9 @@ class ZaifAPI():
         }
 
         #response = requests.post(self.base_url + "tapi", headers=headers, data=data)
-        response = myutils.post(self.base_url + url_path, headers, data)
+        response = myutils.post(self.base_url2, headers, data)
 
+        print response.text
         return response
 
     def bid(self, rate, amount):
@@ -77,19 +74,18 @@ class ZaifAPI():
         Uncertain
         """
 
-        nonce = myutils.nonce()
-        url_path = "tapi"
+        nonce = myutils.nonce2()
         
         data = {
             "method": "trade",
             "currency_pair": "btc_jpy",
             "action": "bid",
             "price": rate,
-            "amount": amount
-        }
+            "amount": amount,
 
-        data['nonce'] = nonce,
-        data["method"] = "trade"
+            'nonce': nonce,
+            "method": "trade"
+        }
 
         signature = self._signature(data=data)
         #message  = str(nonce) + url_path + urllib.urlencode(data)
@@ -101,8 +97,9 @@ class ZaifAPI():
         }
 
         #response = requests.post(self.base_url + "tapi", headers=headers, data=data)
-        response = myutils.post(self.base_url + url_path, headers, data)
+        response = myutils.post(self.base_url2, headers, data)
 
+        print response.text
         return response
 
     def get_balance(self):
@@ -110,12 +107,12 @@ class ZaifAPI():
         Uncertain
         """
 
-        nonce = myutils.nonce()
-        data = {}
-        data['nonce'] = nonce,
-        data["method"] = "get_info"
+        nonce = myutils.nonce2()
+        data = {
+            'nonce': nonce,
+            "method": "get_info"
+        }
         
-
         signature = self._signature(data=data)
         #message  = urllib.urlencode(data)
         #signature = hmac.new(self.config["zaif"]["API_SECRET"], message, hashlib.sha512).hexdigest()
@@ -127,7 +124,7 @@ class ZaifAPI():
 
         #response = requests.post(self.base_url2, headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
-
+        print response.text
         ticker = json.loads(response.text)
         jpy = ticker["return"]["funds"]["jpy"]
         btc = ticker["return"]["funds"]["btc"]
@@ -151,7 +148,7 @@ class ZaifAPI():
         Uncertain
         """
 
-        nonce = myutils.nonce()
+        nonce = myutils.nonce2()
         data = {}
         data['nonce'] = nonce,
         data["method"] = "active_orders"
@@ -178,7 +175,7 @@ class ZaifAPI():
 
         response = {}
         for id in ids:
-            nonce = myutils.nonce()
+            nonce = myutils.nonce2()
             data = {"order_id": id}
             data['nonce'] = nonce,
             data["method"] = "active_orders"
@@ -199,6 +196,12 @@ class ZaifAPI():
 
 if __name__ == '__main__':
     api = ZaifAPI()
-    api.get_ticker()
-    #api.get_balance()
+    ask, bid = api.get_ticker()
+    api.get_balance()
+    ## buy & sell BTC
+    amount = 0.005
+    z_ask = ask * amount
+    z_bid = bid * amount
+    api.ask(rate=z_ask, amount=amount)
+    api.bid(rate=z_bid, amount=amount)
     #pass
