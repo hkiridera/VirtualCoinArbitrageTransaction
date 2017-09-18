@@ -1,18 +1,37 @@
-"""This is a test program."""
-
 # coding:utf-8
 #!/usr/bin/env python
+"""This is a test program."""
 
-from lib.krakenapi import krakenfAPI
-from lib.coincheckapi import CoincheckAPI
-from lib.zaifapi import ZaifAPI
-from lib.bitflyerapi import BitflyerAPI
+import signal
+import sys
 import yaml
+
+from lib.bitflyerapi import BitflyerAPI
+from lib.coincheckapi import CoincheckAPI
+from lib.krakenapi import krakenfAPI
+from lib.zaifapi import ZaifAPI
+
+from time import sleep
+
+
+f = open('data.csv', 'w')
+
+def handler(signal, frame):
+    """
+    強制終了用ハンドラ
+    ctl + cで止まる
+    """
+    print('うおおお、やられたーー')
+    sys.exit(0)
+    f.close()
+signal.signal(signal.SIGINT, handler)
+
 
 def main():
     """
     docstring
     """
+        
     with open('config.yml', 'r') as yml:
         config = yaml.load(yml)
 
@@ -37,15 +56,18 @@ def main():
 
     ## coincheck x zaif
     resp = comparison("coincheck", cc_ask, cc_bid, "zaif", z_ask, z_bid)
-    print resp
     if resp == 1:
         print "sell : coincheck"
         print "buy : zaif"
+        f.write("coincheck,sell," + str(cc_bid) +"\n")
+        f.write("zaif,buy," + str(-z_ask) +"\n")
         #cc_api.bid(rate=cc_bid, amount=amount)
         #z_api.ask(rate=z_ask, amount=amount)
     elif resp == 2:
         print "sell : zaif"
         print "buy : coincheck"
+        f.write("zaif,sell," + str(z_bid) +"\n")
+        f.write("coincheck,buy," + str(-cc_ask) +"\n")
         #z_api.bid(rate=z_bid, amount=amount)
         #cc_api.ask(rate=cc_ask, amount=amount)
     else:
@@ -53,15 +75,18 @@ def main():
 
     ## coincheck x kraken
     resp = comparison("coincheck", cc_ask, cc_bid, "kraken", k_ask, k_bid)
-    print resp
     if resp == 1:
         print "sell : coincheck"
         print "buy : kraken"
+        f.write("coincheck,sell," + str(cc_bid) +"\n")
+        f.write("kraken,buy," + str(-k_ask) +"\n")
         #cc_api.bid(rate=cc_bid, amount=amount)
         #k_api.ask(rate=k_ask, amount=amount)
     elif resp == 2:
-        print "sell : zaif"
+        print "sell : kraken"
         print "buy : coincheck"
+        f.write("kraken,sell," + str(k_bid) +"\n")
+        f.write("coincheck,buy," + str(-cc_ask) +"\n")
         #k_api.bid(rate=k_bid, amount=amount)
         #cc_api.ask(rate=cc_ask, amount=amount)
     else:
@@ -69,15 +94,18 @@ def main():
 
     ## bitflyer x coincheck
     resp = comparison("coincheck", cc_ask, cc_bid, "bitflyer", b_ask, b_bid)
-    print resp
     if resp == 1:
         print "sell : coincheck"
-        print "buy : kraken"
+        print "buy : bitflyer"
+        f.write("coincheck,sell," + str(cc_bid) +"\n")
+        f.write("bitflyer,buy," + str(-b_ask) +"\n")
         #cc_api.bid(rate=cc_bid, amount=amount)
         #b_api.ask(rate=b_ask, amount=amount)
     elif resp == 2:
-        print "sell : zaif"
+        print "sell :bitflyerzaif"
         print "buy : coincheck"
+        f.write("bitflyer,sell," + str(b_bid) +"\n")
+        f.write("coincheck,buy," + str(-cc_ask) +"\n")
         #b_api.bid(rate=b_bid, amount=amount)
         #cc_api.ask(rate=cc_ask, amount=amount)
     else:
@@ -121,4 +149,6 @@ def comparison(a_name, a_ask, a_bid, b_name, b_ask, b_bid):
 if __name__ == "__main__":
     #getCoincCheckRate()
     #getZaifRate()
-    main()
+    while(True):
+        main()
+        sleep(10)

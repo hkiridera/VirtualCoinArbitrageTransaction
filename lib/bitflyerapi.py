@@ -1,18 +1,13 @@
-"""This is a test program."""
-
 # coding:utf-8
 #!/usr/bin/env python
+"""bitflyerのapiを実行する."""
 
-
-import json
-import yaml
-import time
-import requests
 import hashlib
 import hmac
-import urllib
-import base64
+import json
 import myutils
+import requests
+import yaml
 
 
 class BitflyerAPI():

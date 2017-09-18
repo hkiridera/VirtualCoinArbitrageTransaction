@@ -1,17 +1,17 @@
-"""This is a test program."""
-
 # coding:utf-8
 #!/usr/bin/env python
+"""krakenのapiを実行する."""
 
-import requests
-import json
-import yaml
-import time
+import base64
 import hmac
 import hashlib
-import urllib
-import base64
+import json
 import myutils
+import requests
+import time
+import urllib
+import yaml
+
 
 class krakenfAPI():
     """

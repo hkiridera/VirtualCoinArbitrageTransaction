@@ -1,16 +1,14 @@
-"""This is a test program."""
-
 # coding:utf-8
 #!/usr/bin/env python
+"""coincheckのapiを実行する."""
 
-import requests
-import json
-import yaml
-import time
 import hmac
 import hashlib
-import urllib
+import json
 import myutils
+import requests
+import urllib
+import yaml
 
 
 class CoincheckAPI():
