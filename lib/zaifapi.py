@@ -53,6 +53,7 @@ class ZaifAPI():
             'nonce': nonce,
             "method": "trade"
         }
+        print data
 
         signature = self._signature(data=data)
         #message  = str(nonce) + url_path + urllib.urlencode(data)
@@ -86,6 +87,8 @@ class ZaifAPI():
             'nonce': nonce,
             "method": "trade"
         }
+
+        print data
 
         signature = self._signature(data=data)
         #message  = str(nonce) + url_path + urllib.urlencode(data)
@@ -149,9 +152,10 @@ class ZaifAPI():
         """
 
         nonce = myutils.nonce2()
-        data = {}
-        data['nonce'] = nonce,
-        data["method"] = "active_orders"
+        data = {
+            'nonce': nonce,
+            "method": "active_orders"
+        }
         
 
         signature = self._signature(data=data)
@@ -165,7 +169,7 @@ class ZaifAPI():
 
         #response = requests.post(self.base_url2, headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
-
+        print response.text
         return response
 
     def cancel_all_order(self, ids):
@@ -198,10 +202,14 @@ if __name__ == '__main__':
     api = ZaifAPI()
     ask, bid = api.get_ticker()
     api.get_balance()
+
+    api.get_incomplete_orders()
+
     ## buy & sell BTC
     amount = 0.005
-    z_ask = ask * amount
-    z_bid = bid * amount
-    api.ask(rate=z_ask, amount=amount)
-    api.bid(rate=z_bid, amount=amount)
-    #pass
+    ## 5円区切り
+    z_ask = int(ask * amount) + (5 - int(ask * amount) % 5 )
+    z_bid = int(bid * amount) - ( int(bid * amount) % 5 )
+    print z_ask, z_bid
+    #api.ask(rate=int(ask), amount=amount)
+    #api.bid(rate=int(bid), amount=amount)
