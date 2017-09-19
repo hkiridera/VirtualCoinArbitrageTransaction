@@ -14,7 +14,7 @@ from lib.zaifapi import ZaifAPI
 from time import sleep
 
 
-f = open('data.csv', 'w')
+f = open('data.csv', 'a')
 
 def handler(signal, frame):
     """
@@ -74,6 +74,7 @@ def main():
         pass
 
     ## coincheck x kraken
+    '''
     resp = comparison("coincheck", cc_ask, cc_bid, "kraken", k_ask, k_bid)
     if resp == 1:
         print "sell : coincheck"
@@ -91,7 +92,8 @@ def main():
         #cc_api.ask(rate=cc_ask, amount=amount)
     else:
         pass
-
+    '''
+    '''
     ## bitflyer x coincheck
     resp = comparison("coincheck", cc_ask, cc_bid, "bitflyer", b_ask, b_bid)
     if resp == 1:
@@ -110,13 +112,15 @@ def main():
         #cc_api.ask(rate=cc_ask, amount=amount)
     else:
         pass
-
+    '''
+    '''
     ## kraken x zaif
     #comparison("kraken", k_ask, k_bid, "zaif", z_ask, z_bid)
     ## bitflyer x zaif
     #comparison("bitflyer", b_ask, b_bid, "zaif", z_ask, z_bid)
     ## bitflyer x kraken
     #comparison("bitflyer", b_ask, b_bid, "kraken", k_ask, k_bid)
+    '''
 
 def comparison(a_name, a_ask, a_bid, b_name, b_ask, b_bid):
     """
@@ -151,4 +155,4 @@ if __name__ == "__main__":
     #getZaifRate()
     while(True):
         main()
-        sleep(10)
+        sleep(60)
