@@ -144,6 +144,21 @@ class CoincheckAPI():
 
         return jpy, btc
 
+    def check_bid(self, amount=0):
+        _, btc = self.get_balance()
+        ## amount以上のbtcを持っている場合trueを返す
+        if btc > amount:
+            return True
+        else:
+            return False
+
+    def check_ask(self, amount=0):
+        jpy, _ = self.get_balance()
+        ## amount以上の円を持っている場合trueを返す
+        if jpy > amount:
+            return True
+        else:
+            return False
 
     def _signature(self, nonce=None, url_path=None, data=None):
         """
@@ -215,14 +230,39 @@ class CoincheckAPI():
 
         return True
 
+    def all_bid(self):
+        '''
+        全部売る
+        '''
+        ask, bid = self.get_ticker()
+        jpy, btc = self.get_balance()
+        if float(btc) > 0.0:
+            api.bid(rate=ask, amount=btc)
+
+    def initialize_ask(self):
+        '''
+        開始前の初期購入
+        '''
+        api = CoincheckAPI()
+        ask, bid = self.get_ticker()
+        api.ask(rate=ask, amount=self.config["amount"])
+
 if __name__ == '__main__':
     api = CoincheckAPI()
     ask, bid = api.get_ticker()
     api.get_balance()
-    api.get_incomplete_orders()
+    
+    #初期btc購入
+    #api.initialize_ask()
 
     ## all orders canncelled
-    #api.cancel_all_order()
+    api.cancel_all_order()
+
+    # 全売却
+    api.all_bid()
+
+    # 未確定オーダー
+    #api.get_incomplete_orders()
 
     ## buy & sell BTC
     amount = 0.005

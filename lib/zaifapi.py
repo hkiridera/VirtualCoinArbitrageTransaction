@@ -6,9 +6,21 @@ import hmac
 import hashlib
 import json
 import myutils
+import sys
+import signal
 import urllib
 import yaml
 
+from time import sleep
+
+def handler(signal, frame):
+    """
+    強制終了用ハンドラ
+    ctl + cで止まる
+    """
+    print('うおおお、やられたーー')
+    sys.exit(0)
+signal.signal(signal.SIGINT, handler)
 
 class ZaifAPI():
     """
@@ -53,7 +65,6 @@ class ZaifAPI():
             'nonce': nonce,
             "method": "trade"
         }
-        print data
 
         signature = self._signature(data=data)
         #message  = str(nonce) + url_path + urllib.urlencode(data)
@@ -87,8 +98,6 @@ class ZaifAPI():
             'nonce': nonce,
             "method": "trade"
         }
-
-        print data
 
         signature = self._signature(data=data)
         #message  = str(nonce) + url_path + urllib.urlencode(data)
@@ -127,7 +136,6 @@ class ZaifAPI():
 
         #response = requests.post(self.base_url2, headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
-        print response.text
         ticker = json.loads(response.text)
         jpy = ticker["return"]["funds"]["jpy"]
         btc = ticker["return"]["funds"]["btc"]
@@ -136,6 +144,22 @@ class ZaifAPI():
         print "zaif_amount btc :" + str(btc)
 
         return jpy, btc
+
+    def check_bid(self, amount=0):
+        _, btc = self.get_balance()
+        ## amount以上のbtcを持っている場合trueを返す
+        if btc > amount:
+            return True
+        else:
+            return False
+
+    def check_ask(self, amount=0):
+        jpy, _ = self.get_balance()
+        ## amount以上の円を持っている場合trueを返す
+        if jpy > amount:
+            return True
+        else:
+            return False
 
     def _signature(self, data=None):
         """
@@ -172,44 +196,86 @@ class ZaifAPI():
         print response.text
         return response
 
-    def cancel_all_order(self, ids):
+    def cancel_order(self, id):
         """
         Uncertain
         """
 
         response = {}
-        for id in ids:
-            nonce = myutils.nonce2()
-            data = {"order_id": id}
-            data['nonce'] = nonce,
-            data["method"] = "active_orders"
+        nonce = myutils.nonce2()
+        data = {
+            'nonce': nonce,
+            "method": "cancel_order",
+            "order_id": id
+        }
         
-            signature = self._signature(data=data)
-            #message  = urllib.urlencode(data)
-            #signature = hmac.new(self.config["zaif"]["API_SECRET"], message, hashlib.sha512).hexdigest()
+        signature = self._signature(data=data)
+        #message  = urllib.urlencode(data)
+        #signature = hmac.new(self.config["zaif"]["API_SECRET"], message, hashlib.sha512).hexdigest()
 
-            headers = {
-                'key': self.config["zaif"]["ACCESS_KEY"],
-                'sign': signature
-            }
+        headers = {
+            'key': self.config["zaif"]["ACCESS_KEY"],
+            'sign': signature
+        }
 
-            #response = requests.post(self.base_url2, headers=headers, data=data)
-            response[id] = myutils.post(self.base_url2, headers, data)
+        #response = requests.post(self.base_url2, headers=headers, data=data)
+        response = myutils.post(self.base_url2, headers, data)
 
+        print response.text
         return response
+
+    def cancel_all_order(self):
+        ## all orders canncelled
+        api = ZaifAPI()
+        resp = api.get_incomplete_orders()
+        orders = json.loads(resp.text)
+
+        ##空の場合
+        if orders["return"] != {}:
+            print orders["return"]
+            for order in orders["return"]:
+                print order
+                api.cancel_order(id=str(order))
+
+        return True
+
+    def all_bid(self):
+        '''
+        全部売る
+        '''
+        ask, bid = self.get_ticker()
+        jpy, btc = self.get_balance()
+        if float(btc) > 0.0:
+            api.ask(rate=int(ask), amount=btc)
+
+    def initialize_ask(self):
+        '''
+        開始前の初期購入
+        '''
+        api = ZaifAPI()
+        ask, bid = self.get_ticker()
+        api.bid(rate=int(bid), amount=self.config["amount"])
 
 if __name__ == '__main__':
     api = ZaifAPI()
     ask, bid = api.get_ticker()
     api.get_balance()
 
-    api.get_incomplete_orders()
+    #api.get_incomplete_orders()
+
+    #初期btc購入
+    #api.initialize_ask()
+
+    ## all orders canncelled
+    api.cancel_all_order()
+
+    # 全売却
+    api.all_bid()
 
     ## buy & sell BTC
-    amount = 0.005
-    ## 5円区切り
-    z_ask = int(ask * amount) + (5 - int(ask * amount) % 5 )
-    z_bid = int(bid * amount) - ( int(bid * amount) % 5 )
-    print z_ask, z_bid
-    #api.ask(rate=int(ask), amount=amount)
+    #amount = 0.005
+    #買う
     #api.bid(rate=int(bid), amount=amount)
+    #売る
+    #api.ask(rate=int(ask), amount=amount)
+        
