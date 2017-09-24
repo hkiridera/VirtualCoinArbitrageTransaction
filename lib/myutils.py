@@ -25,45 +25,51 @@ def nonce2():
 def get(url, headers=None, params=None):
     try:
         response = requests.get(url, headers=headers, params=params)
+
+        if response.status_code == 401:
+            #print "try again!!"
+            raise Exception('return status code is {}'.format(response.status_code))
+        elif response.status_code != 200:
+            print response.url
+            print response.text
+            raise Exception('return status code is {}'.format(response.status_code))
+
     except:
         traceback.print_exc()
 
-    if response.status_code == 401:
-        #print "try again!!"
-        raise Exception('return status code is {}'.format(response.status_code))
-    elif response.status_code != 200:
-        print response.url
-        print response.text
-        raise Exception('return status code is {}'.format(response.status_code))
     return response
 
 def post(url, headers=None, data=None):
     try:
         response = requests.post(url, headers=headers, data=data)
+
+        if response.status_code == 401:
+            #print "try again!!"
+            raise Exception('return status code is {}'.format(response.status_code))
+        elif response.status_code != 200:
+            print response.url
+            print response.text
+            raise Exception('return status code is {}'.format(response.status_code))
+
     except:
         traceback.print_exc()
 
-    if response.status_code == 401:
-        #print "try again!!"
-        raise Exception('return status code is {}'.format(response.status_code))
-    elif response.status_code != 200:
-        print response.url
-        print response.text
-        raise Exception('return status code is {}'.format(response.status_code))
     return response
 
 
 def delete(url, headers=None, data=None):
     try:
         response = requests.delete(url, headers=headers, data=data)
+        
+        if response.status_code == 401:
+            #print "try again!!"
+            raise Exception('return status code is {}'.format(response.status_code))
+        elif response.status_code != 200:
+            print response.url
+            print response.text
+            raise Exception('return status code is {}'.format(response.status_code))
+
     except:
         traceback.print_exc()
-        
-    if response.status_code == 401:
-        #print "try again!!"
-        raise Exception('return status code is {}'.format(response.status_code))
-    elif response.status_code != 200:
-        print response.url
-        print response.text
-        raise Exception('return status code is {}'.format(response.status_code))
+
     return response
