@@ -29,7 +29,8 @@ class krakenfAPI():
         docstring
         """
         params = {'pair': 'XXBTZJPY'}
-        response = requests.get(self.base_url + "/0/public/Ticker", params=params)
+        #response = requests.get(self.base_url + "/0/public/Ticker", params=params)
+        response = myutils.get(self.base_url + "/0/public/Ticker", params=params)
 
         if response.status_code != 200:
             raise Exception('return status code is {}'.format(response.status_code))
