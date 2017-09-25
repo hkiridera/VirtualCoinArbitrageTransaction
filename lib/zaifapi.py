@@ -144,7 +144,7 @@ class ZaifAPI():
             print "zaif_amount jpy :" + str(jpy)
             print "zaif_amount btc :" + str(btc)
 
-        return jpy, btc
+            return jpy, btc
 
     def check_bid(self, amount=0):
         _, btc = self.get_balance()

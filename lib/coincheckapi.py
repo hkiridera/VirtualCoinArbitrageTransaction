@@ -142,7 +142,7 @@ class CoincheckAPI():
             print "coincheck_amount jpy :" + str(jpy)
             print "coincheck_amount btc :" + str(btc)
 
-        return jpy, btc
+            return jpy, btc
 
     def check_bid(self, amount=0):
         _, btc = self.get_balance()
