@@ -134,13 +134,13 @@ class CoincheckAPI():
         }
         #response = requests.get(self.base_url + url_path , headers=headers)
         response = myutils.get(self.base_url + url_path, headers)
+        if response is None:
+            ticker = json.loads(response.text)
+            jpy = ticker["jpy"]
+            btc = ticker["btc"]
 
-        ticker = json.loads(response.text)
-        jpy = ticker["jpy"]
-        btc = ticker["btc"]
-
-        print "coincheck_amount jpy :" + str(jpy)
-        print "coincheck_amount btc :" + str(btc)
+            print "coincheck_amount jpy :" + str(jpy)
+            print "coincheck_amount btc :" + str(btc)
 
         return jpy, btc
 

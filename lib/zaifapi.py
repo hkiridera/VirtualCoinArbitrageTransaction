@@ -136,12 +136,13 @@ class ZaifAPI():
 
         #response = requests.post(self.base_url2, headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
-        ticker = json.loads(response.text)
-        jpy = ticker["return"]["funds"]["jpy"]
-        btc = ticker["return"]["funds"]["btc"]
+        if response is None:
+            ticker = json.loads(response.text)
+            jpy = ticker["return"]["funds"]["jpy"]
+            btc = ticker["return"]["funds"]["btc"]
 
-        print "zaif_amount jpy :" + str(jpy)
-        print "zaif_amount btc :" + str(btc)
+            print "zaif_amount jpy :" + str(jpy)
+            print "zaif_amount btc :" + str(btc)
 
         return jpy, btc
 
@@ -191,9 +192,11 @@ class ZaifAPI():
             'sign': signature
         }
 
+        
         #response = requests.post(self.base_url2, headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
         print response.text
+
         return response
 
     def cancel_order(self, id):

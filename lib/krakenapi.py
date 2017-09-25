@@ -145,14 +145,14 @@ class krakenfAPI():
 
         #response = requests.post(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(self.base_url + url_path, headers, data)
-        
-        ticker = json.loads(response.text)
-        print ticker
-        #jpy = ticker["jpy"]
-        #btc = ticker["btc"]
+        if response is None:
+            ticker = json.loads(response.text)
+            print ticker
+            #jpy = ticker["jpy"]
+            #btc = ticker["btc"]
 
-        #print "coincheck_amount jpy :" + str(jpy)
-        #print "coincheck_amount btc :" + str(btc)
+            #print "coincheck_amount jpy :" + str(jpy)
+            #print "coincheck_amount btc :" + str(btc)
 
         #return jpy, btc
 
