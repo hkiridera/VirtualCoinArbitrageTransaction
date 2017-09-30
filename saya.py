@@ -35,9 +35,10 @@ signal.signal(signal.SIGINT, handler)
 def initialize():
     #coincheckで初期btc購入
     cc_api.initialize_ask()
-
     #zaif初期btc購入
     z_api.initialize_ask()  
+    #bitflyer初期btc購入
+    b_api.initialize_ask()
 
 def main():
     """
@@ -57,6 +58,7 @@ def main():
     k_ask, k_bid = k_api.get_ticker()
     # bitflyer
     b_ask, b_bid = b_api.get_ticker()
+
 
     ## coincheck x zaif
     resp = comparison("coincheck", cc_ask, cc_bid, "zaif", z_ask, z_bid)
@@ -90,47 +92,69 @@ def main():
 
     else:
         pass
-
-    ## coincheck x kraken
-    '''
-    resp = comparison("coincheck", cc_ask, cc_bid, "kraken", k_ask, k_bid)
-    if resp == 1:
-        f.write("coincheck,sell," + str(cc_bid) +"\n")
-        f.write("kraken,buy," + str(-k_ask) +"\n")
-        #cc_api.bid(rate=cc_bid, amount=amount)
-        #k_api.ask(rate=k_ask, amount=amount)
-    elif resp == 2:
-        f.write("kraken,sell," + str(k_bid) +"\n")
-        f.write("coincheck,buy," + str(-cc_ask) +"\n")
-        #k_api.bid(rate=k_bid, amount=amount)
-        #cc_api.ask(rate=cc_ask, amount=amount)
-    else:
-        pass
-    '''
-    '''
+    
     ## bitflyer x coincheck
-    resp = comparison("coincheck", cc_ask, cc_bid, "bitflyer", b_ask, b_bid)
+    resp = comparison("bitflyer", b_ask, b_bid, "coincheck", cc_ask, cc_bid)
     if resp == 1:
-        f.write("coincheck,sell," + str(cc_bid) +"\n")
-        f.write("bitflyer,buy," + str(-b_ask) +"\n")
-        #cc_api.bid(rate=cc_bid, amount=amount)
-        #b_api.ask(rate=b_ask, amount=amount)
-    elif resp == 2:
         f.write("bitflyer,sell," + str(b_bid) +"\n")
         f.write("coincheck,buy," + str(-cc_ask) +"\n")
-        #b_api.bid(rate=b_bid, amount=amount)
-        #cc_api.ask(rate=cc_ask, amount=amount)
+
+        ## 売買可能な残高があるか
+        if check_tradable(bid_name="bitflyer", bid_amount=amount, ask_name="coincheck", ask_price=cc_ask * config["amount"]):
+            b_api.bid(rate=int(b_bid), amount=amount)
+            cc_api.ask(rate=cc_ask, amount=amount)
+            print "buybuybuy!!!"
+        else:
+            print "Missing money"
+        
+    elif resp == 2:
+        f.write("coincheck,sell," + str(cc_bid) +"\n")
+        f.write("bitflyer,buy," + str(-b_ask) +"\n")
+
+        ## 売買可能な残高があるか
+        if check_tradable(bid_name="coincheck", bid_amount=amount, ask_name="bitflyer", ask_price=b_ask * config["amount"]):
+            cc_api.bid(rate=cc_bid, amount=amount)
+            b_api.ask(rate=int(b_ask), amount=amount)
+            print "buybuybuy!!!"
+        else:
+            print "Missing money"
+
     else:
         pass
-    '''
-    '''
-    ## kraken x zaif
-    #comparison("kraken", k_ask, k_bid, "zaif", z_ask, z_bid)
+
     ## bitflyer x zaif
-    #comparison("bitflyer", b_ask, b_bid, "zaif", z_ask, z_bid)
-    ## bitflyer x kraken
-    #comparison("bitflyer", b_ask, b_bid, "kraken", k_ask, k_bid)
-    '''
+    resp = comparison("bitflyer", b_ask, b_bid, "zaif", cc_ask, z_bid)
+    if resp == 1:
+        f.write("bitflyer,sell," + str(b_bid) +"\n")
+        f.write("zaif,buy," + str(-z_ask) +"\n")
+
+        ## 売買可能な残高があるか
+        if check_tradable(bid_name="bitflyer", bid_amount=amount, ask_name="zaif", ask_price=z_bid * config["amount"]):
+            b_api.bid(rate=int(b_bid), amount=amount)
+            ## zaifだけbid ask逆
+            #z_api.ask(rate=z_ask, amount=amount)
+            z_api.bid(rate=z_bid, amount=amount)
+            print "buybuybuy!!!"
+        else:
+            print "Missing money"
+        
+    elif resp == 2:
+        f.write("zaif,sell," + str(z_bid) +"\n")
+        f.write("bitflyer,buy," + str(-cc_ask) +"\n")
+
+        ## 売買可能な残高があるか
+        if check_tradable(bid_name="zaif", bid_amount=amount, ask_name="bitflyer", ask_price=b_ask * config["amount"]):
+            ## zaifだけbid ask逆
+            z_api.ask(rate=z_ask, amount=amount)
+            #z_api.bid(rate=z_bid, amount=amount)
+            b_api.ask(rate=int(b_ask), amount=amount)
+            print "buybuybuy!!!"
+        else:
+            print "Missing money"
+
+    else:
+        pass
+
 
     print "======================="
 
@@ -208,6 +232,9 @@ def check_tradable(bid_name, bid_amount, ask_name, ask_price):
         if z_api.check_ask(amount=ask_price):
             askflg = True
 
+    print "bidflg : " + str(bidflg)
+    print "askflg : " + str(askflg)
+
     ## 結果を返す
     if bidflg == True and askflg == True:
         return True
@@ -224,4 +251,4 @@ if __name__ == "__main__":
 
     while(True):
         main()
-        sleep(30)
+        sleep(config["interval"])

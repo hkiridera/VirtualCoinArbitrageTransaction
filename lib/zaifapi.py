@@ -137,8 +137,8 @@ class ZaifAPI():
         #response = requests.post(self.base_url2, headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
         ticker = json.loads(response.text)
-        jpy = ticker["return"]["funds"]["jpy"]
-        btc = ticker["return"]["funds"]["btc"]
+        jpy = float(ticker["return"]["funds"]["jpy"])
+        btc = float(ticker["return"]["funds"]["btc"])
 
         print "zaif_amount jpy :" + str(jpy)
         print "zaif_amount btc :" + str(btc)
@@ -148,7 +148,7 @@ class ZaifAPI():
     def check_bid(self, amount=0):
         _, btc = self.get_balance()
         ## amount以上のbtcを持っている場合trueを返す
-        if btc > amount:
+        if btc >= amount:
             return True
         else:
             return False
@@ -156,7 +156,7 @@ class ZaifAPI():
     def check_ask(self, amount=0):
         jpy, _ = self.get_balance()
         ## amount以上の円を持っている場合trueを返す
-        if jpy > amount:
+        if jpy >= amount:
             return True
         else:
             return False
@@ -267,15 +267,15 @@ if __name__ == '__main__':
     #api.initialize_ask()
 
     ## all orders canncelled
-    api.cancel_all_order()
+    #api.cancel_all_order()
 
     # 全売却
-    api.all_bid()
+    #api.all_bid()
 
     ## buy & sell BTC
-    #amount = 0.005
+    amount = 0.005
     #買う
-    #api.bid(rate=int(bid), amount=amount)
+    api.bid(rate=int(bid), amount=amount)
     #売る
     #api.ask(rate=int(ask), amount=amount)
         

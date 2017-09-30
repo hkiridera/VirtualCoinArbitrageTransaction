@@ -136,8 +136,8 @@ class CoincheckAPI():
         response = myutils.get(self.base_url + url_path, headers)
 
         ticker = json.loads(response.text)
-        jpy = ticker["jpy"]
-        btc = ticker["btc"]
+        jpy = float(ticker["jpy"])
+        btc = float(ticker["btc"])
 
         print "coincheck_amount jpy :" + str(jpy)
         print "coincheck_amount btc :" + str(btc)
@@ -146,8 +146,11 @@ class CoincheckAPI():
 
     def check_bid(self, amount=0):
         _, btc = self.get_balance()
+        print btc
+        print amount
+
         ## amount以上のbtcを持っている場合trueを返す
-        if btc > amount:
+        if btc >= amount:
             return True
         else:
             return False
@@ -155,7 +158,7 @@ class CoincheckAPI():
     def check_ask(self, amount=0):
         jpy, _ = self.get_balance()
         ## amount以上の円を持っている場合trueを返す
-        if jpy > amount:
+        if jpy >= amount:
             return True
         else:
             return False
@@ -256,10 +259,10 @@ if __name__ == '__main__':
     #api.initialize_ask()
 
     ## all orders canncelled
-    api.cancel_all_order()
+    #api.cancel_all_order()
 
     # 全売却
-    api.all_bid()
+    #api.all_bid()
 
     # 未確定オーダー
     #api.get_incomplete_orders()
@@ -269,3 +272,5 @@ if __name__ == '__main__':
     #api.ask(rate=ask, amount=amount)
     #api.bid(rate=bid, amount=amount)
     #pass
+
+    print api.check_bid(amount=amount)

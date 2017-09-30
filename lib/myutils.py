@@ -22,12 +22,13 @@ def nonce2():
     #print "nonce : " + str(_nonce)
     return _nonce
 
-def get(url, headers=None, params=None):
+def get(url, headers=None, params=None,data=None):
     try:
-        response = requests.get(url, headers=headers, params=params)
-
+        response = requests.get(url, headers=headers, params=params, data=data)
         if response.status_code == 401:
             #print "try again!!"
+            print response.url
+            print response.text
             raise Exception('return status code is {}'.format(response.status_code))
         elif response.status_code != 200:
             print response.url
@@ -45,6 +46,8 @@ def post(url, headers=None, data=None):
 
         if response.status_code == 401:
             #print "try again!!"
+            print response.url
+            print response.text
             raise Exception('return status code is {}'.format(response.status_code))
         elif response.status_code != 200:
             print response.url

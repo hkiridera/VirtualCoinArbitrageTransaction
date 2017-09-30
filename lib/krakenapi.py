@@ -148,8 +148,8 @@ class krakenfAPI():
         
         ticker = json.loads(response.text)
         print ticker
-        #jpy = ticker["jpy"]
-        #btc = ticker["btc"]
+        #jpy = float(ticker["jpy"])
+        #btc = float(ticker["btc"])
 
         #print "coincheck_amount jpy :" + str(jpy)
         #print "coincheck_amount btc :" + str(btc)
@@ -159,7 +159,7 @@ class krakenfAPI():
     def check_bid(self, amount=0):
         _, btc = self.get_balance()
         ## amount以上のbtcを持っている場合trueを返す
-        if btc > amount:
+        if btc >= amount:
             return True
         else:
             return False
@@ -167,7 +167,7 @@ class krakenfAPI():
     def check_ask(self, amount=0):
         jpy, _ = self.get_balance()
         ## amount以上の円を持っている場合trueを返す
-        if jpy > amount:
+        if jpy >= amount:
             return True
         else:
             return False
