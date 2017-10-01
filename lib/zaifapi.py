@@ -80,7 +80,7 @@ class ZaifAPI():
 
 
         ## send messege to slack
-        myutils.post_slack(name="zaif", text="ask : btc=" + amount + " jpy=" + rate)
+        myutils.post_slack(name="さやちゃん", text="Zaifで" + amount + "BTCを" + rate + "で買っといたよ")
 
         return response
 
@@ -115,7 +115,7 @@ class ZaifAPI():
         response = myutils.post(self.base_url2, headers, data)
 
         ## send messege to slack
-        myutils.post_slack(name="zaif", text="bid : btc=" + amount + " jpy=" + rate)
+        myutils.post_slack(name="さやちゃん", text="Zaifで" + amount + "BTCを" + rate + "で売っといたよ")
 
         return response
 
