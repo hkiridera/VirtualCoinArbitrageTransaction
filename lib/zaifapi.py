@@ -262,7 +262,7 @@ class ZaifAPI():
             ask, bid = self.get_ticker()
             # zaifはbid askが逆
             #api.ask(rate=ask, amount=self.config["amount"])
-            api.bid(rate=ask, amount=self.config["amount"])
+            api.bid(rate=int(ask), amount=self.config["amount"])
 
 if __name__ == '__main__':
     api = ZaifAPI()
