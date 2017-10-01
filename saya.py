@@ -28,7 +28,7 @@ def _sttop_process():
     '''
     終了時に実行
     '''
-    myutils.post_slack(name="さやちゃん", text="止まっちゃったよ")
+    myutils.post_slack(name="さやちゃん", text="止まっちゃったよ…")
 
 
 def handler(signal, frame):
@@ -252,6 +252,10 @@ def check_tradable(bid_name, bid_amount, ask_name, ask_price):
 
 
 if __name__ == "__main__":
+
+    ## 開始時のメッセージ
+    myutils.post_slack(name="さやちゃん",text="さやちゃん始めるよー")
+
     #getCoincCheckRate()
     #getZaifRate()
     # 停止時の処理
