@@ -71,7 +71,7 @@ class BitflyerAPI():
         #response = requests.post(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(url=self.base_url + url_path, headers=headers, data=json.dumps(data))
 
-        if response.status_code == 200:
+        if response.status_code == 200:z
             ## send messege to slack
             myutils.post_slack(name="さやちゃん", text="Bitflyerで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
             return True
@@ -104,10 +104,11 @@ class BitflyerAPI():
 
         #response = requests.post(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(url=self.base_url + url_path, headers=headers, data=json.dumps(data))
-
-        ## send messege to slack
-        myutils.post_slack(name="さやちゃん", text="Bitflyerで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
-        return response
+        if response.status_code == 200:z
+            ## send messege to slack
+            myutils.post_slack(name="さやちゃん", text="Bitflyerで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
+            return True
+        return False
 
     def get_balance(self):
         """
