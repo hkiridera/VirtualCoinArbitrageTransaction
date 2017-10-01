@@ -262,7 +262,8 @@ if __name__ == "__main__":
     atexit.register(_sttop_process)
 
     # 初期化
-    #initialize()
+    if config["initialize"]:
+        initialize()
 
     while(True):
         main()
