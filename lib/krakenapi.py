@@ -82,7 +82,7 @@ class krakenfAPI():
         response = myutils.post(self.base_url + url_path, headers, data)
 
         ## send messege to slack
-        myutils.post_slack(name="さやちゃん", text="Krakenで" + amount + "BTCを" + rate + "で買っといたよ")
+        myutils.post_slack(name="さやちゃん", text="Krakenで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
 
         return response
 
@@ -126,7 +126,7 @@ class krakenfAPI():
         response = myutils.post(self.base_url + url_path, headers, data)
 
         ## send messege to slack
-        myutils.post_slack(name="さやちゃん", text="Krakenで" + amount + "BTCを" + rate + "で売っといたよ")
+        myutils.post_slack(name="さやちゃん", text="Krakenで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
 
         return response
 
