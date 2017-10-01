@@ -18,3 +18,5 @@ amount:
 difference: 
 interval: 
 slack_address:
+
+initialize:
