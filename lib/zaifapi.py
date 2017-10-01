@@ -78,7 +78,10 @@ class ZaifAPI():
         #response = requests.post(self.base_url + "tapi", headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
 
-        print response.text
+
+        ## send messege to slack
+        myutils.post_slack(name="zaif", text="ask : btc=" + amount + " jpy=" + rate)
+
         return response
 
     def bid(self, rate, amount):
@@ -111,7 +114,9 @@ class ZaifAPI():
         #response = requests.post(self.base_url + "tapi", headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
 
-        print response.text
+        ## send messege to slack
+        myutils.post_slack(name="zaif", text="bid : btc=" + amount + " jpy=" + rate)
+
         return response
 
     def get_balance(self):

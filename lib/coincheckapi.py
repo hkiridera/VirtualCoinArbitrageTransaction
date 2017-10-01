@@ -72,6 +72,9 @@ class CoincheckAPI():
 
         #response = requests.post(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(self.base_url + url_path, headers, data)
+
+        ## send messege to slack
+        myutils.post_slack(name="coincheck", text="ask : btc=" + amount + " jpy=" + rate)
         
         return response
 
@@ -112,6 +115,8 @@ class CoincheckAPI():
         #response = requests.post(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(self.base_url + url_path, headers, data)
         
+        ## send messege to slack
+        myutils.post_slack(name="coincheck", text="bid : btc=" + amount + " jpy=" + rate)
         return response
 
 

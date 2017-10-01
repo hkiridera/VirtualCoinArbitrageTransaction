@@ -2,9 +2,15 @@
 #!/usr/bin/env python
 """共通関数"""
 
+import json
 import traceback
 import time
 import requests
+import yaml
+
+with open('config.yml', 'r') as yml:
+    config = yaml.load(yml)
+f = open('data.csv', 'a')
 
 def nonce():
     """
@@ -76,3 +82,20 @@ def delete(url, headers=None, data=None):
         traceback.print_exc()
 
     return response
+
+def post_slack(name=None,text=None):
+    '''
+    slackにメッセージを投稿する
+    '''
+
+    if name is None or text is None:
+        return False
+
+    requests.post(config["slack_address"], data = json.dumps({
+        'text': text, # 投稿するテキスト
+        'username': name, # 投稿のユーザー名
+        'icon_emoji': ':ghost:', # 投稿のプロフィール画像に入れる絵文字
+        'link_names': 1, # メンションを有効にする
+    }))
+
+    return True

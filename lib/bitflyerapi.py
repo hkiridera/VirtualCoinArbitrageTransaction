@@ -66,6 +66,9 @@ class BitflyerAPI():
         #response = requests.post(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(url=self.base_url + url_path, headers=headers, data=json.dumps(data))
 
+
+        ## send messege to slack
+        myutils.post_slack(name="bitflyer", text="ask : btc=" + amount + " jpy=" + rate)
         return response
 
     def bid(self, rate, amount):
@@ -96,6 +99,8 @@ class BitflyerAPI():
         #response = requests.post(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(url=self.base_url + url_path, headers=headers, data=json.dumps(data))
 
+        ## send messege to slack
+        myutils.post_slack(name="bitflyer", text="bid : btc=" + amount + " jpy=" + rate)
         return response
 
     def get_balance(self):

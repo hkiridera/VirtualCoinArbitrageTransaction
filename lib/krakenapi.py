@@ -81,6 +81,9 @@ class krakenfAPI():
         #response = requests.post(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(self.base_url + url_path, headers, data)
 
+        ## send messege to slack
+        myutils.post_slack(name="kraken", text="ask : btc=" + amount + " jpy=" + rate)
+
         return response
 
 
@@ -122,6 +125,8 @@ class krakenfAPI():
         #response = requests.get(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(self.base_url + url_path, headers, data)
 
+        ## send messege to slack
+        myutils.post_slack(name="kraken", text="bid : btc=" + amount + " jpy=" + rate)
         return response
 
     def get_barance(self):
