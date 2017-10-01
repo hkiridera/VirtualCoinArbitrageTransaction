@@ -104,7 +104,7 @@ class BitflyerAPI():
 
         #response = requests.post(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(url=self.base_url + url_path, headers=headers, data=json.dumps(data))
-        if response.status_code == 200:z
+        if response.status_code == 200:
             ## send messege to slack
             myutils.post_slack(name="さやちゃん", text="Bitflyerで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
             return True
