@@ -260,7 +260,9 @@ class ZaifAPI():
         jpy, btc = api.get_balance()
         if self.config["amount"] > btc:
             ask, bid = self.get_ticker()
-            api.ask(rate=ask, amount=self.config["amount"])
+            # zaifはbid askが逆
+            #api.ask(rate=ask, amount=self.config["amount"])
+            api.bid(rate=ask, amount=self.config["amount"])
 
 if __name__ == '__main__':
     api = ZaifAPI()
@@ -270,13 +272,13 @@ if __name__ == '__main__':
     #api.get_incomplete_orders()
 
     #初期btc購入
-    #api.initialize_ask()
+    api.initialize_ask()
 
     ## all orders canncelled
     #api.cancel_all_order()
 
     # 全売却
-    api.all_bid()
+    #api.all_bid()
 
     ## buy & sell BTC
     #amount = 0.005
