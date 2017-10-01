@@ -249,8 +249,10 @@ class ZaifAPI():
         開始前の初期購入
         '''
         api = ZaifAPI()
-        ask, bid = self.get_ticker()
-        api.bid(rate=int(bid), amount=self.config["amount"])
+        jpy, btc = self.get_balance()
+        if self.config["amount"] > btc:
+            ask, bid = self.get_ticker()
+            api.ask(rate=ask, amount=self.config["amount"])
 
 if __name__ == '__main__':
     api = ZaifAPI()
@@ -266,12 +268,12 @@ if __name__ == '__main__':
     #api.cancel_all_order()
 
     # 全売却
-    #api.all_bid()
+    api.all_bid()
 
     ## buy & sell BTC
     amount = 0.005
     #買う
-    api.bid(rate=int(bid), amount=amount)
+    #api.bid(rate=int(bid), amount=amount)
     #売る
     #api.ask(rate=int(ask), amount=amount)
         

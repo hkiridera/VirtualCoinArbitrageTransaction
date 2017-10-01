@@ -252,8 +252,10 @@ class krakenfAPI():
         開始前の初期購入
         '''
         api = krakenfAPI()
-        ask, bid = self.get_ticker()
-        api.ask(rate=ask, amount=self.config["amount"])
+        jpy, btc = self.get_balance()
+        if self.config["amount"] > btc:
+            ask, bid = self.get_ticker()
+            api.ask(rate=ask, amount=self.config["amount"])
 
 
 if __name__ == '__main__':

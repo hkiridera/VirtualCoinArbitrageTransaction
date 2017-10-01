@@ -242,15 +242,18 @@ class BitflyerAPI():
         ask, bid = self.get_ticker()
         jpy, btc = self.get_balance()
         if float(btc) > 0.0:
-            api.bid(rate=ask, amount=btc)
+            api.bid(rate=ask, amount=btc-0.001)
 
     def initialize_ask(self):
         '''
         開始前の初期購入
+        足りなかったらamount分追加購入
         '''
         api = BitflyerAPI()
-        ask, bid = self.get_ticker()
-        api.ask(rate=ask, amount=self.config["amount"])
+        jpy, btc = self.get_balance()
+        if self.config["amount"] > btc:
+            ask, bid = self.get_ticker()
+            api.ask(rate=ask, amount=self.config["amount"])
 
     def get_trading_commission(self):
         """
@@ -295,7 +298,7 @@ if __name__ == '__main__':
     #api.cancel_all_order()
 
     # 全売却
-    #api.all_bid()
+    api.all_bid()
 
     # 未確定オーダー
     #api.get_incomplete_orders()

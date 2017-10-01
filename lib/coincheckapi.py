@@ -252,8 +252,10 @@ class CoincheckAPI():
         開始前の初期購入
         '''
         api = CoincheckAPI()
-        ask, bid = self.get_ticker()
-        api.ask(rate=ask, amount=self.config["amount"])
+        jpy, btc = self.get_balance()
+        if self.config["amount"] > btc:
+            ask, bid = self.get_ticker()
+            api.ask(rate=ask, amount=self.config["amount"])
 
 if __name__ == '__main__':
     api = CoincheckAPI()
@@ -267,15 +269,15 @@ if __name__ == '__main__':
     #api.cancel_all_order()
 
     # 全売却
-    #api.all_bid()
+    api.all_bid()
 
     # 未確定オーダー
     #api.get_incomplete_orders()
 
     ## buy & sell BTC
     amount = 0.005
-    api.ask(rate=ask, amount=amount)
+    #api.ask(rate=ask, amount=amount)
     #api.bid(rate=bid, amount=amount)
     #pass
 
-    print api.check_bid(amount=amount)
+    #print api.check_bid(amount=amount)
