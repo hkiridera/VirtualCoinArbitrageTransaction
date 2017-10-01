@@ -27,14 +27,17 @@ class CoincheckAPI():
         #payload = {'pair': 'XXBTZJPY'}
         response = requests.get(self.base_url + "api/ticker")
 
-        if response.status_code != 200:
-            raise Exception('return status code is {}'.format(response.status_code))
-        ticker = json.loads(response.text)
-        bid = ticker["bid"]
-        ask = ticker["ask"]
-
-        print "coincheck_ask :" + str(ask)
-        print "coincheck_bid :" + str(bid)
+        ## 値の取得に成功したらaskとbidを返す
+        ## 失敗したら変な値を返す
+        if response.status_code == 200: 
+            ticker = json.loads(response.text)
+            bid = ticker["bid"]
+            ask = ticker["ask"]
+            print "coincheck_ask :" + str(ask)
+            print "coincheck_bid :" + str(bid)
+        else:
+            ask = 99999999999999
+            bid = -1
 
         return ask, bid
 
@@ -73,10 +76,12 @@ class CoincheckAPI():
         #response = requests.post(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(self.base_url + url_path, headers, data)
 
-        ## send messege to slack
-        myutils.post_slack(name="さやちゃん", text="Coincheckで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
+        if response.status_code == 200:
+            ## send messege to slack
+            myutils.post_slack(name="さやちゃん", text="Coincheckで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
+            return True
         
-        return response
+        return False
 
 
     def bid(self, rate, amount):
@@ -114,10 +119,12 @@ class CoincheckAPI():
 
         #response = requests.post(self.base_url + url_path, headers=headers, data=data)
         response = myutils.post(self.base_url + url_path, headers, data)
+        if response.status_code == 200:
+            ## send messege to slack
+            myutils.post_slack(name="さやちゃん", text="Coincheckで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
+            return True
         
-        ## send messege to slack
-        myutils.post_slack(name="さやちゃん", text="Coincheckで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
-        return response
+        return False
 
 
     def get_balance(self):

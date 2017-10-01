@@ -32,11 +32,17 @@ class ZaifAPI():
         #response = requests.get(self.base_url + "ticker/btc_jpy")
         response = myutils.get(self.base_url + url_path)
 
-        ticker = json.loads(response.text)
-        bid = ticker["bid"]
-        ask = ticker["ask"]
-        print "zaif_ask :" + str(ask)
-        print "zaif_bid :" + str(bid)
+        ## 値の取得に成功したらaskとbidを返す
+        ## 失敗したら変な値を返す
+        if response.status_code == 200:
+            ticker = json.loads(response.text)
+            bid = ticker["bid"]
+            ask = ticker["ask"]
+            print "zaif_ask :" + str(ask)
+            print "zaif_bid :" + str(bid)
+        else:
+            ask = 99999999999999
+            bid = -1
 
         return ask, bid
 
@@ -68,12 +74,12 @@ class ZaifAPI():
 
         #response = requests.post(self.base_url + "tapi", headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
+        if response.status_code == 200:
+            ## send messege to slack
+            myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
+            return True
 
-
-        ## send messege to slack
-        myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
-
-        return response
+        return False
 
     def bid(self, rate, amount):
         """
@@ -105,10 +111,11 @@ class ZaifAPI():
         #response = requests.post(self.base_url + "tapi", headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
 
-        ## send messege to slack
-        myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
-
-        return response
+        if response.status_code == 200:
+            ## send messege to slack
+            myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
+            return True
+        return False
 
     def get_balance(self):
         """
