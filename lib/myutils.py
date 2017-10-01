@@ -33,12 +33,12 @@ def get(url, headers=None, params=None,data=None):
         response = requests.get(url, headers=headers, params=params, data=data)
         if response.status_code == 401:
             #print "try again!!"
-            #print response.url
-            #print response.text
+            print response.url
+            print response.text
             raise Exception('return status code is {}'.format(response.status_code))
         elif response.status_code != 200:
-            #print response.url
-            #print response.text
+            print response.url
+            print response.text
             raise Exception('return status code is {}'.format(response.status_code))
 
     except:
