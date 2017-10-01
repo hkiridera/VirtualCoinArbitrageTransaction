@@ -13,15 +13,6 @@ import yaml
 
 from time import sleep
 
-def handler(signal, frame):
-    """
-    強制終了用ハンドラ
-    ctl + cで止まる
-    """
-    print('うおおお、やられたーー')
-    sys.exit(0)
-signal.signal(signal.SIGINT, handler)
-
 class ZaifAPI():
     """
     docstring
