@@ -266,17 +266,17 @@ class CoincheckAPI():
 
 if __name__ == '__main__':
     api = CoincheckAPI()
-    ask, bid = api.get_ticker()
-    api.get_balance()
+    #ask, bid = api.get_ticker()
+    #api.get_balance()
     
     #初期btc購入
     #api.initialize_ask()
 
     ## all orders canncelled
-    #api.cancel_all_order()
+    api.cancel_all_order()
 
     # 全売却
-    api.all_bid()
+    #api.all_bid()
 
     # 未確定オーダー
     #api.get_incomplete_orders()
