@@ -16,3 +16,5 @@ kraken:
 
 amount:
 difference: 
+interval: 
+slack_address:
