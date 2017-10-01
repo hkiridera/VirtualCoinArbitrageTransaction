@@ -2,6 +2,7 @@
 #!/usr/bin/env python
 """This is a test program."""
 
+import atexit
 import signal
 import sys
 import yaml
@@ -10,6 +11,7 @@ from lib.bitflyerapi import BitflyerAPI
 from lib.coincheckapi import CoincheckAPI
 from lib.krakenapi import krakenfAPI
 from lib.zaifapi import ZaifAPI
+import lib.myutils as myutils
 
 from time import sleep
 
@@ -21,6 +23,13 @@ cc_api = CoincheckAPI()
 z_api = ZaifAPI()
 k_api = krakenfAPI()
 b_api = BitflyerAPI()
+
+def _sttop_process():
+    '''
+    終了時に実行
+    '''
+    myutils.post_slack(name="さやちゃん", text="止まっちゃったよ")
+
 
 def handler(signal, frame):
     """
@@ -245,6 +254,8 @@ def check_tradable(bid_name, bid_amount, ask_name, ask_price):
 if __name__ == "__main__":
     #getCoincCheckRate()
     #getZaifRate()
+    # 停止時の処理
+    atexit.register(_sttop_process)
 
     # 初期化
     #initialize()
