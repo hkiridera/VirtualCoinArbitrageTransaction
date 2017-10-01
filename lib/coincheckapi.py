@@ -123,7 +123,7 @@ class CoincheckAPI():
             ## send messege to slack
             myutils.post_slack(name="さやちゃん", text="Coincheckで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
             return True
-        
+
         return False
 
 
@@ -259,7 +259,7 @@ class CoincheckAPI():
         開始前の初期購入
         '''
         api = CoincheckAPI()
-        jpy, btc = self.get_balance()
+        jpy, btc = api.get_balance()
         if self.config["amount"] > btc:
             ask, bid = self.get_ticker()
             api.ask(rate=ask, amount=self.config["amount"])
@@ -282,7 +282,7 @@ if __name__ == '__main__':
     #api.get_incomplete_orders()
 
     ## buy & sell BTC
-    amount = 0.005
+    #amount = 0.005
     #api.ask(rate=ask, amount=amount)
     #api.bid(rate=bid, amount=amount)
     #pass

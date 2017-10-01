@@ -248,8 +248,9 @@ class krakenfAPI():
         '''
         全部売る
         '''
-        ask, bid = self.get_ticker()
-        jpy, btc = self.get_balance()
+        api = krakenfAPI()
+        ask, bid = api.get_ticker()
+        jpy, btc = api.get_balance()
         if float(btc) > 0.0:
             api.bid(rate=ask, amount=btc)
 
@@ -258,7 +259,7 @@ class krakenfAPI():
         開始前の初期購入
         '''
         api = krakenfAPI()
-        jpy, btc = self.get_balance()
+        jpy, btc = api.get_balance()
         if self.config["amount"] > btc:
             ask, bid = self.get_ticker()
             api.ask(rate=ask, amount=self.config["amount"])

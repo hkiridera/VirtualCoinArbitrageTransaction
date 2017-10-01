@@ -257,7 +257,7 @@ class BitflyerAPI():
         足りなかったらamount分追加購入
         '''
         api = BitflyerAPI()
-        jpy, btc = self.get_balance()
+        jpy, btc = api.get_balance()
         if self.config["amount"] > btc:
             ask, bid = self.get_ticker()
             api.ask(rate=ask, amount=self.config["amount"])
@@ -311,10 +311,10 @@ if __name__ == '__main__':
     #api.get_incomplete_orders()
 
     #取引手数料
-    commissionrate = api.get_trading_commission()
+    #commissionrate = api.get_trading_commission()
 
     ## buy & sell BTC
-    amount = 0.005
+    #amount = 0.005
     #api.ask(rate=ask, amount=amount)
     #print amount
     #api.bid(rate=bid, amount=amount)
