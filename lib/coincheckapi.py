@@ -25,7 +25,7 @@ class CoincheckAPI():
         docstring
         """
         #payload = {'pair': 'XXBTZJPY'}
-        response = requests.get(self.base_url + "api/ticker")
+        response = myutils.get(self.base_url + "api/ticker")
 
         ## 値の取得に成功したらaskとbidを返す
         ## 失敗したら変な値を返す
