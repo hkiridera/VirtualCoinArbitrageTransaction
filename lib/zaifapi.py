@@ -76,7 +76,7 @@ class ZaifAPI():
         response = myutils.post(self.base_url2, headers, data)
         if response.status_code == 200:
             ## send messege to slack
-            myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
+            myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
             return True
 
         return False
@@ -117,6 +117,39 @@ class ZaifAPI():
             return True
         return False
 
+    def scalping(self, amount):
+        """
+        Uncertain
+        """
+
+        # 現在価格取得
+        _, bid = self.get_ticker()
+
+        # 買う
+        self.bid(rate=int(bid), amount=amount)
+
+        # 買えたか確認ループ
+        while True:
+            resp = self.get_incomplete_orders()
+            orders = json.loads(resp.text)
+            ##空でない場合
+            if orders["return"] == {}:
+                break
+        
+        # 売る
+        self.ask(rate=int(bid + 5), amount=amount)
+
+        # 売れたか確認ループ
+        while True:
+            resp = self.get_incomplete_orders()
+            orders = json.loads(resp.text)
+            ##空でない場合
+            if orders["return"] == {}:
+                break
+
+        # 終了
+        return True
+
     def get_balance(self):
         """
         Uncertain
@@ -149,7 +182,7 @@ class ZaifAPI():
         else:
             jpy = 0
             btc = 0
-            
+
         return jpy, btc
 
     def check_bid(self, amount=0):
@@ -200,7 +233,7 @@ class ZaifAPI():
 
         #response = requests.post(self.base_url2, headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
-        print response.text
+        #print response.text
         return response
 
     def cancel_order(self, id):
@@ -237,7 +270,7 @@ class ZaifAPI():
         resp = api.get_incomplete_orders()
         orders = json.loads(resp.text)
 
-        ##空の場合
+        ##空でない場合
         if orders["return"] != {}:
             print orders["return"]
             for order in orders["return"]:
@@ -270,24 +303,26 @@ class ZaifAPI():
 
 if __name__ == '__main__':
     api = ZaifAPI()
-    ask, bid = api.get_ticker()
-    api.get_balance()
+    #ask, bid = api.get_ticker()
+    #api.get_balance()
 
     #api.get_incomplete_orders()
 
     #初期btc購入
-    api.initialize_ask()
+    #api.initialize_ask()
 
     ## all orders canncelled
     #api.cancel_all_order()
 
     # 全売却
-    #api.all_bid()
+    api.all_bid()
 
     ## buy & sell BTC
-    #amount = 0.005
+    amount = 0.005
     #買う
     #api.bid(rate=int(bid), amount=amount)
     #売る
     #api.ask(rate=int(ask), amount=amount)
         
+    # スキャルピング
+    #api.scalping(amount)

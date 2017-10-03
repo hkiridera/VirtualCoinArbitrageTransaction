@@ -126,6 +126,38 @@ class CoincheckAPI():
 
         return False
 
+    def scalping(self, amount):
+        """
+        Uncertain
+        """
+
+        # 現在価格取得
+        ask, _ = self.get_ticker()
+
+        # 買う
+        self.ask(rate=int(ask), amount=amount)
+
+        # 買えたか確認ループ
+        while True:
+            resp = self.get_incomplete_orders()
+            orders = json.loads(resp.text)
+            ##空でない場合
+            if orders["orders"] == []:
+                break
+        
+        # 売る
+        self.bid(rate=int(ask + self.config["scalping"]), amount=amount)
+
+        # 売れたか確認ループ
+        while True:
+            resp = self.get_incomplete_orders()
+            orders = json.loads(resp.text)
+            ##空でない場合
+            if orders["orders"] == []:
+                break
+
+        # 終了
+        return True
 
     def get_balance(self):
         """
@@ -208,7 +240,7 @@ class CoincheckAPI():
         #response = requests.get(self.base_url + url_path , headers=headers)
         response = myutils.get(self.base_url + url_path, headers)
         ticker = json.loads(response.text)
-        print ticker
+        #print ticker
         return response
 
     def cancel_order(self, id=None):
@@ -277,18 +309,21 @@ if __name__ == '__main__':
     #api.initialize_ask()
 
     ## all orders canncelled
-    api.cancel_all_order()
+    #api.cancel_all_order()
 
     # 全売却
-    #api.all_bid()
+    api.all_bid()
 
     # 未確定オーダー
     #api.get_incomplete_orders()
 
     ## buy & sell BTC
-    #amount = 0.005
+    amount = 0.005
     #api.ask(rate=ask, amount=amount)
     #api.bid(rate=bid, amount=amount)
     #pass
 
     #print api.check_bid(amount=amount)
+
+    # スキャルピング
+    #api.scalping(amount)

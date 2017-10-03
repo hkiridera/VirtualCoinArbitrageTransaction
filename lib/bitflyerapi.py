@@ -110,6 +110,39 @@ class BitflyerAPI():
             return True
         return False
 
+    def scalping(self, amount):
+        """
+        Uncertain
+        """
+
+        # 現在価格取得
+        ask, _ = self.get_ticker()
+
+        # 買う
+        self.ask(rate=int(ask), amount=amount)
+
+        # 買えたか確認ループ
+        while True:
+            resp = self.get_incomplete_orders()
+            orders = json.loads(resp.text)
+            ##空でない場合
+            if orders == []:
+                break
+        
+        # 売る
+        self.bid(rate=int(ask + self.config["scalping"]), amount=amount)
+
+        # 売れたか確認ループ
+        while True:
+            resp = self.get_incomplete_orders()
+            orders = json.loads(resp.text)
+            ##空でない場合
+            if orders == []:
+                break
+
+        # 終了
+        return True
+    
     def get_balance(self):
         """
         Uncertain 
@@ -211,7 +244,7 @@ class BitflyerAPI():
         #response = requests.get(url + url_path, headers=headers)
         response = myutils.get(url=self.base_url + url_path, headers=headers, params=params)
         orders = json.loads(response.text)
-        print orders
+        #print orders
 #        for resp in orders:
 #            if resp["currency_code"] == "JPY":
 #                jpy = resp["amount"]
@@ -317,7 +350,10 @@ if __name__ == '__main__':
     #commissionrate = api.get_trading_commission()
 
     ## buy & sell BTC
-    #amount = 0.005
+    amount = 0.005
     #api.ask(rate=ask, amount=amount)
     #print amount
     #api.bid(rate=bid, amount=amount)
+
+    # スキャルピング
+    #api.scalping(amount)

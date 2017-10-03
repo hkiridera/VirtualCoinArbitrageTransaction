@@ -136,6 +136,39 @@ class krakenfAPI():
 
         return False
 
+    def scalping(self, amount):
+        """
+        Uncertain
+        """
+
+        # 現在価格取得
+        ask, _ = self.get_ticker()
+
+        # 買う
+        self.ask(rate=int(ask), amount=amount)
+
+        # 買えたか確認ループ
+        while True:
+            resp = self.get_incomplete_orders()
+            orders = json.loads(resp.text)
+            ##空でない場合
+            if orders["return"] == {}:
+                break
+        
+        # 売る
+        self.bid(rate=int(ask + 5), amount=amount)
+
+        # 売れたか確認ループ
+        while True:
+            resp = self.get_incomplete_orders()
+            orders = json.loads(resp.text)
+            ##空でない場合
+            if orders["return"] == {}:
+                break
+
+        # 終了
+        return True
+
     def get_barance(self):
         """
         Uncertain
