@@ -139,13 +139,17 @@ class ZaifAPI():
 
         #response = requests.post(self.base_url2, headers=headers, data=data)
         response = myutils.post(self.base_url2, headers, data)
-        ticker = json.loads(response.text)
-        jpy = float(ticker["return"]["funds"]["jpy"])
-        btc = float(ticker["return"]["funds"]["btc"])
+        if response.status_code == 200:
+            ticker = json.loads(response.text)
+            jpy = float(ticker["return"]["funds"]["jpy"])
+            btc = float(ticker["return"]["funds"]["btc"])
 
-        print "zaif_amount jpy :" + str(jpy)
-        print "zaif_amount btc :" + str(btc)
-
+            print "zaif_amount jpy :" + str(jpy)
+            print "zaif_amount btc :" + str(btc)
+        else:
+            jpy = 0
+            btc = 0
+            
         return jpy, btc
 
     def check_bid(self, amount=0):

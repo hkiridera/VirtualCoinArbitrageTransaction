@@ -133,17 +133,20 @@ class BitflyerAPI():
 
         #response = requests.get(url + url_path, headers=headers)
         response = myutils.get(url=self.base_url + url_path, headers=headers)
-        balance = json.loads(response.text)
-        ## Analysis of response to json and confirmation of balance
+        if response.status_code == 200:
+            balance = json.loads(response.text)
+            ## Analysis of response to json and confirmation of balance
+            for resp in balance:
+                if resp["currency_code"] == "JPY":
+                    jpy = float(resp["amount"])
+                elif resp["currency_code"] == "BTC":
+                    btc = float(resp["amount"])
 
-        for resp in balance:
-            if resp["currency_code"] == "JPY":
-                jpy = float(resp["amount"])
-            elif resp["currency_code"] == "BTC":
-                btc = float(resp["amount"])
-
-        print "bitflyer_amount jpy :" + str(jpy)
-        print "bitflyer_amount btc :" + str(btc)
+            print "bitflyer_amount jpy :" + str(jpy)
+            print "bitflyer_amount btc :" + str(btc)
+        else:
+            jpy = 0
+            btc = 0
 
         return jpy, btc
 
