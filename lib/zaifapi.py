@@ -130,22 +130,24 @@ class ZaifAPI():
 
         # 買えたか確認ループ
         while True:
-            resp = self.get_incomplete_orders()
-            orders = json.loads(resp.text)
-            ##空でない場合
-            if orders["return"] == {}:
-                break
+            response = self.get_incomplete_orders()
+            if response.status_code == 200:
+                orders = json.loads(response.text)
+                ##空でない場合
+                if orders["return"] == {}:
+                    break
         
         # 売る
         self.ask(rate=int(bid + 5), amount=amount)
 
         # 売れたか確認ループ
         while True:
-            resp = self.get_incomplete_orders()
-            orders = json.loads(resp.text)
-            ##空でない場合
-            if orders["return"] == {}:
-                break
+            response = self.get_incomplete_orders()
+            if response.status_code == 200:
+                orders = json.loads(response.text)
+                ##空でない場合
+                if orders["return"] == {}:
+                    break
 
         # 終了
         return True
