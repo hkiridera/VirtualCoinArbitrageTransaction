@@ -135,7 +135,7 @@ class CoincheckAPI():
         ask, _ = self.get_ticker()
 
         # 買う
-        self.ask(rate=int(ask), amount=amount)
+        self.ask(rate=int(ask - self.config["scalping"]), amount=amount)
 
         # 買えたか確認ループ
         while True:

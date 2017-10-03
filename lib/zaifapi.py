@@ -126,7 +126,7 @@ class ZaifAPI():
         _, bid = self.get_ticker()
 
         # 買う
-        self.bid(rate=int(bid), amount=amount)
+        self.bid(rate=int(bid - self.config["scalping"]), amount=amount)
 
         # 買えたか確認ループ
         while True:
