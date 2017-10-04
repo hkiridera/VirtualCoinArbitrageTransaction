@@ -289,7 +289,6 @@ class BitflyerAPI():
             # 売買できたか確認ループ
             while True:
                 response = self.get_incomplete_orders_fx()
-                break
                 if response.status_code == 200:
                     orders = json.loads(response.text)
                     ##空でない場合
@@ -434,7 +433,7 @@ class BitflyerAPI():
         #response = requests.get(url + url_path, headers=headers)
         response = myutils.get(url=self.base_url + url_path, headers=headers, params=params)
         orders = json.loads(response.text)
-        #print orders
+        print orders
 #        for resp in orders:
 #            if resp["currency_code"] == "JPY":
 #                jpy = resp["amount"]
@@ -541,7 +540,7 @@ if __name__ == '__main__':
 
     # 未確定オーダー
     #api.get_incomplete_orders()
-    #api.get_incomplete_orders_fx()
+    api.get_incomplete_orders_fx()
 
     #取引手数料
     #commissionrate = api.get_trading_commission()
