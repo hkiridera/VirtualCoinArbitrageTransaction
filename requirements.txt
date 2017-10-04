@@ -4,3 +4,5 @@ coincheck==0.1.10
 pytz==2016.7
 requests==2.6.0
 simplejson==3.8.1
+pubnub==4.0.13
+tornado==4.5.2
