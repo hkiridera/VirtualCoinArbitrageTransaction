@@ -271,7 +271,6 @@ class BitflyerAPI():
 
         # 現在価格取得
         #ask, _ = self.get_ticker_fx()
-        self.get_ticker_streaming()
 
         # 初期値以上(ストリーミングで値が撮れてる場合実施する)
         if ask_s > 0:

@@ -54,6 +54,9 @@ if __name__ == "__main__":
     # 停止時の処理
     atexit.register(_sttop_process)
 
+    # tickのstreaming取得
+    b_api.get_ticker_streaming()
+
     while(True):
         b_scalping()
 
