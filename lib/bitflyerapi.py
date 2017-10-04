@@ -7,10 +7,26 @@ import hmac
 import json
 import multiprocessing
 import myutils
+import time
+import threading
 import urllib
 import requests
 import yaml
 
+from tornado import gen
+from pubnub.callbacks import SubscribeCallback
+from pubnub.enums import PNStatusCategory
+from pubnub.pnconfiguration import PNConfiguration
+from pubnub.pubnub_tornado import PubNubTornado
+from pubnub.pnconfiguration import PNReconnectionPolicy
+
+config = PNConfiguration()
+config.subscribe_key = 'sub-c-52a9ab50-291b-11e5-baaa-0619f8945a4f'
+config.reconnect_policy = PNReconnectionPolicy.LINEAR
+pubnub = PubNubTornado(config)
+
+bid_s = -1
+ask_s = -1
 
 class BitflyerAPI():
     """
@@ -46,6 +62,51 @@ class BitflyerAPI():
             bid = -1
 
         return ask, bid
+
+    @gen.coroutine
+    def _get_ticker_streaming(self):
+        class BitflyerSubscriberCallback(SubscribeCallback):
+            def presence(self, pubnub, presence):
+                pass  # handle incoming presence data
+
+            def status(self, pubnub, status):
+                if status.category == PNStatusCategory.PNUnexpectedDisconnectCategory:
+                    pass  # This event happens when radio / connectivity is lost
+
+                elif status.category == PNStatusCategory.PNConnectedCategory:
+                    # Connect event. You can do stuff like publish, and know you'll get it.
+                    # Or just use the connected event to confirm you are subscribed for
+                    # UI / internal notifications, etc
+                    pass
+                elif status.category == PNStatusCategory.PNReconnectedCategory:
+                    pass
+                    # Happens as part of our regular operation. This event happens when
+                    # radio / connectivity is lost, then regained.
+                elif status.category == PNStatusCategory.PNDecryptionErrorCategory:
+                    pass
+                    # Handle message decryption error. Probably client configured to
+                    # encrypt messages and on live data feed it received plain text.
+
+            def message(self, pubnub, message):
+                # Handle new message stored in message.message
+                # メインの処理はここで書きます
+                # 登録したチャンネルからメッセージ(価格の変化など)がくるたび、この関数が呼ばれます
+
+                #print("%s : %s" % (message.channel, message.message))
+                #ticker = json.loads(message.message)
+                global bid_s,ask_s
+                bid_s = message.message["best_bid"]
+                ask_s = message.message["best_ask"]
+
+        listener = BitflyerSubscriberCallback()
+        pubnub.add_listener(listener)
+        pubnub.subscribe().channels("lightning_ticker_FX_BTC_JPY").execute()
+        pubnub.start()
+
+    def get_ticker_streaming(self):
+        th1 = threading.Thread(target=self._get_ticker_streaming)
+        th1.setDaemon(True)
+        th1.start()
 
     def get_ticker_fx(self):
         """
@@ -209,27 +270,32 @@ class BitflyerAPI():
         """
 
         # 現在価格取得
-        ask, _ = self.get_ticker_fx()
+        #ask, _ = self.get_ticker_fx()
+        self.get_ticker_streaming()
 
-        th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask - self.config["scalping"]), amount))
-        th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask + self.config["scalping"]), amount))
-        th1.start();
-        th2.start();
-        th1.join();
-        th2.join();
-        # 買う
-        #self.ask_fx(rate=int(ask - self.config["scalping"]), amount=amount)
-        # 売る
-        #self.bid_fx(rate=int(ask + self.config["scalping"]), amount=amount)
-        # 売買できたか確認ループ
-        while True:
-            response = self.get_incomplete_orders_fx()
-            break
-            if response.status_code == 200:
-                orders = json.loads(response.text)
-                ##空でない場合
-                if orders == []:
-                    break
+        # 初期値以上(ストリーミングで値が撮れてる場合実施する)
+        if ask_s > 0:
+            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask - self.config["scalping"]), amount))
+            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask + self.config["scalping"]), amount))
+            th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["scalping"]), amount))
+            th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s + self.config["scalping"]), amount))
+            th1.start()
+            th2.start()
+            th1.join()
+            th2.join()
+            # 買う
+            #self.ask_fx(rate=int(ask - self.config["scalping"]), amount=amount)
+            # 売る
+            #self.bid_fx(rate=int(ask + self.config["scalping"]), amount=amount)
+            # 売買できたか確認ループ
+            while True:
+                response = self.get_incomplete_orders_fx()
+                break
+                if response.status_code == 200:
+                    orders = json.loads(response.text)
+                    ##空でない場合
+                    if orders == []:
+                        break
         # 終了
         return True
     
@@ -460,8 +526,8 @@ class BitflyerAPI():
 
 if __name__ == '__main__':
     api = BitflyerAPI()
-    ask, bid = api.get_ticker()
-    api.get_balance()
+    #ask, bid = api.get_ticker()
+    #api.get_balance()
     #pass
 
 
@@ -488,4 +554,7 @@ if __name__ == '__main__':
     #api.bid(rate=bid, amount=amount)
 
     # スキャルピング
-    api.scalping(amount)
+    #api.scalping(amount)
+
+    # streaming ticker
+    #api.get_ticker_streaming()
