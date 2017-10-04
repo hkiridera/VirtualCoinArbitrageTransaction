@@ -5,6 +5,7 @@
 import hashlib
 import hmac
 import json
+import multiprocessing
 import myutils
 import urllib
 import requests
@@ -210,13 +211,20 @@ class BitflyerAPI():
         # 現在価格取得
         ask, _ = self.get_ticker_fx()
 
+        th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask - self.config["scalping"]), amount))
+        th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask + self.config["scalping"]), amount))
+        th1.start();
+        th2.start();
+        th1.join();
+        th2.join();
         # 買う
-        self.ask_fx(rate=int(ask - self.config["scalping"]), amount=amount)
+        #self.ask_fx(rate=int(ask - self.config["scalping"]), amount=amount)
         # 売る
-        self.bid_fx(rate=int(ask + self.config["scalping"]), amount=amount)
+        #self.bid_fx(rate=int(ask + self.config["scalping"]), amount=amount)
         # 売買できたか確認ループ
         while True:
             response = self.get_incomplete_orders_fx()
+            break
             if response.status_code == 200:
                 orders = json.loads(response.text)
                 ##空でない場合
