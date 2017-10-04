@@ -21,6 +21,9 @@ class BitflyerAPI():
         with open('config.yml', 'r') as yml:
             self.config = yaml.load(yml)
 
+        # False = down , True = up
+        self.up_or_down = False
+
     def get_ticker(self):
         """
         docstring
@@ -209,20 +212,9 @@ class BitflyerAPI():
 
         # 買う
         self.ask_fx(rate=int(ask - self.config["scalping"]), amount=amount)
-
-        # 買えたか確認ループ
-        while True:
-            response = self.get_incomplete_orders_fx()
-            if response.status_code == 200:
-                orders = json.loads(response.text)
-                ##空でない場合
-                if orders == []:
-                    break
-        
         # 売る
         self.bid_fx(rate=int(ask + self.config["scalping"]), amount=amount)
-
-        # 売れたか確認ループ
+        # 売買できたか確認ループ
         while True:
             response = self.get_incomplete_orders_fx()
             if response.status_code == 200:
@@ -230,7 +222,6 @@ class BitflyerAPI():
                 ##空でない場合
                 if orders == []:
                     break
-
         # 終了
         return True
     
@@ -451,7 +442,13 @@ class BitflyerAPI():
         commission = json.loads(response.text)
         print "bitfyer commission_rate : " + str(commission["commission_rate"])
 
-        return commission["commission_rate"]        
+        return commission["commission_rate"]
+
+    def up_or_down(self):
+        '''
+        1分前のデータと比較して、今は上昇傾向なのか下降傾向なのかを判定する
+        '''
+        pass
 
 if __name__ == '__main__':
     api = BitflyerAPI()
