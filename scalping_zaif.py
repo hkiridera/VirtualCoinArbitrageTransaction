@@ -29,7 +29,7 @@ def _sttop_process():
     '''
     終了時に実行
     '''
-    myutils.post_slack(name="さやちゃん", text="スキャルピング止まっちゃったよ…")
+    myutils.post_slack(name="さやちゃん", text="zaifのスキャルピング止まっちゃったよ…")
 
 
 def handler(signal, frame):
@@ -43,13 +43,13 @@ def handler(signal, frame):
 signal.signal(signal.SIGINT, handler)
 
 def z_scalping():
-    amount = config["amount"]
+    amount = config["zaif"]["amount"]
     z_api.scalping(amount)
 
 if __name__ == "__main__":
 
     ## 開始時のメッセージ
-    myutils.post_slack(name="さやちゃん",text="スキャルピング始めるよー")
+    myutils.post_slack(name="さやちゃん",text="ziafのスキャルピング始めるよー")
 
     # 停止時の処理
     atexit.register(_sttop_process)

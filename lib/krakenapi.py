@@ -145,7 +145,7 @@ class krakenfAPI():
         ask, _ = self.get_ticker()
 
         # 買う
-        self.ask(rate=int(ask - self.config["scalping"]), amount=amount)
+        self.ask(rate=int(ask - self.config["kraken"]["scalping"]), amount=amount)
 
         # 買えたか確認ループ
         while True:
@@ -157,7 +157,7 @@ class krakenfAPI():
                     break
         
         # 売る
-        self.bid(rate=int(ask + 5), amount=amount)
+        self.bid(rate=int(ask), amount=amount)
 
         # 売れたか確認ループ
         while True:
