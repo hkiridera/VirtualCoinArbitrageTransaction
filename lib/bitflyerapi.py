@@ -432,13 +432,8 @@ class BitflyerAPI():
 
         #response = requests.get(url + url_path, headers=headers)
         response = myutils.get(url=self.base_url + url_path, headers=headers, params=params)
-        orders = json.loads(response.text)
-        print orders
-#        for resp in orders:
-#            if resp["currency_code"] == "JPY":
-#                jpy = resp["amount"]
-#            elif resp["currency_code"] == "BTC":
-#                btc = resp["amount"]
+        if response.status_code == 200:
+            orders = json.loads(response.text)
         return response
 
     def cancel_all_order(self):
