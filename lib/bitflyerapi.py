@@ -269,15 +269,26 @@ class BitflyerAPI():
         Uncertain
         """
 
+        # 売買できたか確認ループ
+        while True:
+            response = self.get_incomplete_orders_fx()
+            if response.status_code == 200:
+                orders = json.loads(response.text)
+                ##空でない場合
+                if orders == []:
+                    break
+
         # 現在価格取得
         #ask, _ = self.get_ticker_fx()
 
         # 初期値以上(ストリーミングで値が撮れてる場合実施する)
         if ask_s > 0:
-            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask - self.config["scalping"]), amount))
-            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask + self.config["scalping"]), amount))
+            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["scalping"]), amount))
+            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s + self.config["scalping"]), amount))
+
             th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
             th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
+
             th1.start()
             th2.start()
             th1.join()
@@ -286,14 +297,6 @@ class BitflyerAPI():
             #self.ask_fx(rate=int(ask - self.config["scalping"]), amount=amount)
             # 売る
             #self.bid_fx(rate=int(ask + self.config["scalping"]), amount=amount)
-            # 売買できたか確認ループ
-            while True:
-                response = self.get_incomplete_orders_fx()
-                if response.status_code == 200:
-                    orders = json.loads(response.text)
-                    ##空でない場合
-                    if orders == []:
-                        break
         # 終了
         return True
     
@@ -434,7 +437,7 @@ class BitflyerAPI():
         response = myutils.get(url=self.base_url + url_path, headers=headers, params=params)
         if response.status_code == 200:
             orders = json.loads(response.text)
-            print orders
+            #print orders
         return response
 
     def cancel_all_order(self):
@@ -536,7 +539,7 @@ if __name__ == '__main__':
 
     # 未確定オーダー
     #api.get_incomplete_orders()
-    api.get_incomplete_orders_fx()
+    #api.get_incomplete_orders_fx()
 
     #取引手数料
     #commissionrate = api.get_trading_commission()
@@ -551,4 +554,7 @@ if __name__ == '__main__':
     #api.scalping(amount)
 
     # streaming ticker
-    #api.get_ticker_streaming()
+    api.get_ticker_streaming()
+
+    time.sleep(3)
+    print bid_s, ask_s
