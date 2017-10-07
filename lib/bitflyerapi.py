@@ -99,7 +99,7 @@ class BitflyerAPI():
                 global bid_s,ask_s
                 bid_s = message.message["best_bid"]
                 ask_s = message.message["best_ask"]
-                print bid_s, ask_s
+                #print bid_s, ask_s
 
                 f.write("bid,ask," + str(bid_s) + "," + str(ask_s) +"\n")
 
