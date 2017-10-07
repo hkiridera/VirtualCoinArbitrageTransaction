@@ -28,6 +28,8 @@ pubnub = PubNubTornado(config)
 bid_s = -1
 ask_s = -1
 
+f = open('b_ticker.csv', 'a')
+
 class BitflyerAPI():
     """
     docstring
@@ -97,6 +99,9 @@ class BitflyerAPI():
                 global bid_s,ask_s
                 bid_s = message.message["best_bid"]
                 ask_s = message.message["best_ask"]
+                print bid_s, ask_s
+
+                f.write("bid,ask," + str(bid_s) + "," + str(ask_s) +"\n")
 
         listener = BitflyerSubscriberCallback()
         pubnub.add_listener(listener)
@@ -283,15 +288,19 @@ class BitflyerAPI():
 
         # 初期値以上(ストリーミングで値が撮れてる場合実施する)
         if ask_s > 0 and bid_s > 0:
-            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["scalping"]), amount))
-            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s + self.config["scalping"]), amount))
+            rate = int((bid_s + ask_s)/2)
+            th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
+            th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s + self.config["bitflyer"]["scalping"]), amount))
 
             # 上昇相場
             #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(bid_s), amount))
             #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
 
-            th1 = multiprocessing.Process(target=self.ask_fx, args=(int(bid_s), amount))
-            th2 = multiprocessing.Process(target=self.bid_fx, args=(int(bid_s + self.config["scalping"]), amount))
+            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(bid_s), amount))
+            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(bid_s + self.config["bitflyer"]["scalping"]), amount))
+
+            #th1 = multiprocessing.Process(target=self.ask_fx, args=(rate - self.config["bitflyer"]["scalping"], amount))
+            #th2 = multiprocessing.Process(target=self.bid_fx, args=(rate + self.config["bitflyer"]["scalping"], amount))
 
             # 下降相場
             #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
@@ -567,5 +576,5 @@ if __name__ == '__main__':
     # streaming ticker
     api.get_ticker_streaming()
 
-    time.sleep(3)
-    print bid_s, ask_s
+    #time.sleep(3)
+    #print bid_s, ask_s
