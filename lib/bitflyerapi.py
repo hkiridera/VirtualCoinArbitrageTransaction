@@ -297,6 +297,9 @@ class BitflyerAPI():
             #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
             #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
 
+            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["scalping"]), amount))
+            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
+
             th1.start()
             th2.start()
             th1.join()
