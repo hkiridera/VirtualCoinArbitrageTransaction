@@ -282,13 +282,13 @@ class BitflyerAPI():
         #ask, _ = self.get_ticker_fx()
 
         # 初期値以上(ストリーミングで値が撮れてる場合実施する)
-        if ask_s > 0:
+        if ask_s > 0 and bid_s > 0:
             #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["scalping"]), amount))
             #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s + self.config["scalping"]), amount))
 
             # 上昇相場
-            th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s), amount))
-            th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s + self.config["bitflyer"]["scalping"]), amount))
+            th1 = multiprocessing.Process(target=self.ask_fx, args=(int(bid_s), amount))
+            th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
 
             # 下降相場
             #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
