@@ -287,8 +287,11 @@ class BitflyerAPI():
             #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s + self.config["scalping"]), amount))
 
             # 上昇相場
+            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(bid_s), amount))
+            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
+
             th1 = multiprocessing.Process(target=self.ask_fx, args=(int(bid_s), amount))
-            th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
+            th2 = multiprocessing.Process(target=self.bid_fx, args=(int(bid_s + self.config["scalping"]), amount))
 
             # 下降相場
             #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
