@@ -141,33 +141,30 @@ class CoincheckAPI():
         # 買えたか確認ループ
         i = 0
         while True:
-            # 1分間買えなかった場合キャンセルする
-            if i > 120:
-                self.cancel_all_order()
-                return
             response = self.get_incomplete_orders()
             if response.status_code == 200:
                 orders = json.loads(response.text)
-                ##空の場合
-                if orders == []:
+                ##空でない場合
+                if orders["orders"] == []:
                     break
+                elif i > 120:
+                    return
                 else:
                     i += 1
-                    # API制限のため少し待つ
                     time.sleep(0.5)
         
         # 売る
         self.bid(rate=int(ask), amount=amount)
+
         # 売れたか確認ループ
         while True:
             response = self.get_incomplete_orders()
             if response.status_code == 200:
                 orders = json.loads(response.text)
-                ##空の場合
+                ##空でない場合
                 if orders["orders"] == []:
                     break
                 else:
-                    # API制限のため少し待つ
                     time.sleep(0.5)
 
         # 終了
