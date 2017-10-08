@@ -91,11 +91,14 @@ def post_slack(name=None,text=None):
     if name is None or text is None:
         return False
 
-    requests.post(config["slack_address"], data = json.dumps({
-        'text': text, # 投稿するテキスト
-        'username': name, # 投稿のユーザー名
-        'icon_emoji': ':saya:', # 投稿のプロフィール画像に入れる絵文字
-        'link_names': 1, # メンションを有効にする
-    }))
+    try:
+        requests.post(config["slack_address"], data = json.dumps({
+            'text': text, # 投稿するテキスト
+            'username': name, # 投稿のユーザー名
+            'icon_emoji': ':saya:', # 投稿のプロフィール画像に入れる絵文字
+            'link_names': 1, # メンションを有効にする
+        }))
+    except:
+        traceback.print_exc()
 
     return True
