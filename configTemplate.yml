@@ -3,24 +3,32 @@ coincheck:
   API_SECRET:
   amount:
   scalping:
+  minute_to_expire:
+  trigger_price:
 
 zaif:
   ACCESS_KEY:
   API_SECRET:
   amount:
   scalping:
+  minute_to_expire:
+  trigger_price:
 
 bitflyer:
   ACCESS_KEY:
   API_SECRET:
   amount:
   scalping:
+  minute_to_expire:
+  trigger_price:
 
 kraken:
   ACCESS_KEY:
   API_SECRET:
   amount:
   scalping:
+  minute_to_expire:
+  trigger_price:
 
 difference: 
 interval: 

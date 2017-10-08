@@ -202,6 +202,69 @@ class BitflyerAPI():
             return True
         return False
 
+    def IFDOCO(self, rate, amount):
+        """
+        docstring
+        """
+        nonce = myutils.nonce2()
+        url = self.base_url
+        url_path = "/v1/me/sendparentorder"
+
+        data = {
+            "product_code": "BTC_JPY",
+            "child_order_type": "LIMIT",
+            "side": "BUY",
+            "price": rate,
+            "size": amount
+        }
+
+        data = {
+            "order_method": "IFDOCO",
+            "minute_to_expire": self.config["bitflyer"]["minute_to_expire"],
+            "time_in_force": "GTC",
+            "parameters": [{
+                "product_code": "FX_BTC_JPY",
+                "condition_type": "LIMIT",
+                "side": "BUY",
+                "price": rate,
+                "size": amount
+            },
+            {
+                "product_code": "FX_BTC_JPY",
+                "condition_type": "LIMIT",
+                "side": "SELL",
+                "price": rate + self.config["bitflyer"]["scalping"],
+                "size": amount
+            },
+            {
+                "product_code": "FX_BTC_JPY",
+                "condition_type": "STOP_LIMIT",
+                "side": "SELL",
+                "price": rate - self.config["bitflyer"]["trigger_price"],
+                "trigger_price": rate - self.config["bitflyer"]["trigger_price"],
+                "size": amount
+            }]
+        }
+
+        signature = self._signature(nonce=nonce, method="POST", url_path=url_path, data=data)
+
+        headers = {
+            'ACCESS-KEY': self.config["bitflyer"]["ACCESS_KEY"],
+            'ACCESS-SIGN': signature,
+            'ACCESS-TIMESTAMP': nonce,
+            "Content-Type": "application/json"
+        }
+
+        #response = requests.post(self.base_url + url_path, headers=headers, data=data)
+        response = myutils.post(url=self.base_url + url_path, headers=headers, data=json.dumps(data))
+
+        if response.status_code == 200:
+            ## send messege to slack
+            myutils.post_slack(name="さやちゃん", text="Bitflyerで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
+            return True
+        return False
+
+
     def ask_fx(self, rate, amount):
         """
         docstring
@@ -288,9 +351,9 @@ class BitflyerAPI():
 
         # 初期値以上(ストリーミングで値が撮れてる場合実施する)
         if ask_s > 0 and bid_s > 0:
-            rate = int((bid_s + ask_s)/2)
-            th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
-            th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s + self.config["bitflyer"]["scalping"]), amount))
+            #rate = int((bid_s + ask_s)/2)
+            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
+            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s + self.config["bitflyer"]["scalping"]), amount))
 
             # 上昇相場
             #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(bid_s), amount))
@@ -309,10 +372,13 @@ class BitflyerAPI():
             #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["scalping"]), amount))
             #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
 
-            th1.start()
-            th2.start()
-            th1.join()
-            th2.join()
+            #IFDCO
+            self.IFDOCO(rate=bid_s, amount=amount)
+
+            #th1.start()
+            #th2.start()
+            #th1.join()
+            #th2.join()
             # 買う
             #self.ask_fx(rate=int(ask - self.config["scalping"]), amount=amount)
             # 売る
@@ -559,7 +625,7 @@ if __name__ == '__main__':
 
     # 未確定オーダー
     #api.get_incomplete_orders()
-    #api.get_incomplete_orders_fx()
+    api.get_incomplete_orders_fx()
 
     #取引手数料
     #commissionrate = api.get_trading_commission()
@@ -574,7 +640,7 @@ if __name__ == '__main__':
     #api.scalping(amount)
 
     # streaming ticker
-    api.get_ticker_streaming()
+    #api.get_ticker_streaming()
 
     #time.sleep(3)
     #print bid_s, ask_s
