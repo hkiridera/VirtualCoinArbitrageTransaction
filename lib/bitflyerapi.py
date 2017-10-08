@@ -346,7 +346,7 @@ class BitflyerAPI():
 
         # 初期値以上(ストリーミングで値が撮れてる場合実施する)
         if ask_s > 0 and bid_s > 0:
-            #rate = int((bid_s + ask_s)/2)
+            rate = int((bid_s + ask_s)/2)
             #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
             #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s + self.config["bitflyer"]["scalping"]), amount))
 
@@ -357,8 +357,19 @@ class BitflyerAPI():
             #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(bid_s), amount))
             #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(bid_s + self.config["bitflyer"]["scalping"]), amount))
 
-            #th1 = multiprocessing.Process(target=self.ask_fx, args=(rate - self.config["bitflyer"]["scalping"], amount))
-            #th2 = multiprocessing.Process(target=self.bid_fx, args=(rate + self.config["bitflyer"]["scalping"], amount))
+            # 複数の売買をスレッドに投入して、一括で発注する。
+            jobs = []
+            for data in range(1):
+                job = multiprocessing.Process(target=self.ask_fx, args=(ask_s - self.config["bitflyer"]["scalping"], amount))
+                jobs.append(job)
+                job = multiprocessing.Process(target=self.bid_fx, args=(ask_s, amount))
+                jobs.append(job)
+
+            [job.start() for job in jobs]
+            [job.join() for job in jobs]
+
+            #th_ask = multiprocessing.Process(target=self.ask_fx, args=(rate - self.config["bitflyer"]["scalping"], amount))
+            #th_bid = multiprocessing.Process(target=self.bid_fx, args=(rate + self.config["bitflyer"]["scalping"], amount))
 
             # 下降相場
             #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
@@ -368,12 +379,14 @@ class BitflyerAPI():
             #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
 
             #IFDCO
-            self.IFDOCO(rate=bid_s, amount=amount)
+            #self.IFDOCO(rate=bid_s, amount=amount)
 
             #th1.start()
             #th2.start()
+
             #th1.join()
             #th2.join()
+
             # 買う
             #self.ask_fx(rate=int(ask - self.config["scalping"]), amount=amount)
             # 売る
