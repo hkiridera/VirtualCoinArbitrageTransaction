@@ -334,9 +334,12 @@ class BitflyerAPI():
             response = self.get_incomplete_orders_fx()
             if response.status_code == 200:
                 orders = json.loads(response.text)
-                ##空でない場合
+                ##空の場合
                 if orders == []:
                     break
+                else:
+                    # API制限のため少し待つ
+                    time.sleep(0.5)
 
         # 現在価格取得
         #ask, _ = self.get_ticker_fx()
