@@ -148,6 +148,7 @@ class CoincheckAPI():
                 if orders["orders"] == []:
                     break
                 elif i > 120:
+                    self.cancel_all_order()
                     return
                 else:
                     i += 1
