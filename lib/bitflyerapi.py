@@ -211,14 +211,6 @@ class BitflyerAPI():
         url_path = "/v1/me/sendparentorder"
 
         data = {
-            "product_code": "BTC_JPY",
-            "child_order_type": "LIMIT",
-            "side": "BUY",
-            "price": rate,
-            "size": amount
-        }
-
-        data = {
             "order_method": "IFDOCO",
             "minute_to_expire": self.config["bitflyer"]["minute_to_expire"],
             "time_in_force": "GTC",
