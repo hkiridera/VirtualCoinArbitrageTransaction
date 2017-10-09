@@ -8,6 +8,7 @@ import json
 import myutils
 import sys
 import signal
+import time
 import urllib
 import yaml
 
@@ -129,13 +130,20 @@ class ZaifAPI():
         self.bid(rate=int(bid - self.config["zaif"]["scalping"]), amount=amount)
 
         # 買えたか確認ループ
+        i = 0
         while True:
             response = self.get_incomplete_orders()
             if response.status_code == 200:
                 orders = json.loads(response.text)
                 ##空でない場合
-                if orders["return"] == {}:
+                if orders["orders"] == []:
                     break
+                elif i > 120:
+                    self.cancel_all_order()
+                    return
+                else:
+                    i += 1
+                    time.sleep(0.5)
         
         # 売る
         self.ask(rate=int(bid), amount=amount)
