@@ -323,7 +323,7 @@ if __name__ == '__main__':
     #api.cancel_all_order()
 
     # 全売却
-    #api.all_bid()
+    api.all_bid()
 
     # 未確定オーダー
     #api.get_incomplete_orders()

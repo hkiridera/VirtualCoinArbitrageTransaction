@@ -138,7 +138,7 @@ class ZaifAPI():
                 ##空でない場合
                 if orders["return"] == {}:
                     break
-                elif i > 120:
+                elif i > 10:
                     self.cancel_all_order()
                     return
                 else:

@@ -329,6 +329,31 @@ class BitflyerAPI():
         Uncertain
         """
 
+        # 現在価格取得
+        #ask, _ = self.get_ticker_fx()
+
+        # 買う
+        self.ask_fx(rate=int(ask_s - self.config["bitflyer"]["scalping"]), amount=amount)
+        # 売買できたか確認ループ
+        i = 0
+        while True:
+            # 1分間買えなかった場合キャンセルする
+            if i > 10:
+                self.cancel_all_order_fx()
+                return
+            response = self.get_incomplete_orders_fx()
+            if response.status_code == 200:
+                orders = json.loads(response.text)
+                ##空の場合
+                if orders == []:
+                    break
+                else:
+                    # API制限のため少し待つ
+                    i += 1
+                    time.sleep(0.5)
+
+        # 売る
+        self.bid_fx(rate=int(ask_s), amount=amount)
         # 売買できたか確認ループ
         while True:
             response = self.get_incomplete_orders_fx()
@@ -340,86 +365,6 @@ class BitflyerAPI():
                 else:
                     # API制限のため少し待つ
                     time.sleep(0.5)
-
-        # 現在価格取得
-        #ask, _ = self.get_ticker_fx()
-
-        # 初期値以上(ストリーミングで値が撮れてる場合実施する)
-        if ask_s > 0 and bid_s > 0:
-            #rate = int((bid_s + ask_s)/2)
-            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
-            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s + self.config["bitflyer"]["scalping"]), amount))
-
-            # 上昇相場
-            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(bid_s), amount))
-            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
-
-            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(bid_s), amount))
-            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(bid_s + self.config["bitflyer"]["scalping"]), amount))
-
-            # 複数の売買をスレッドに投入して、一括で発注する。
-            #jobs = []
-            #for data in range(1):
-            #    job = multiprocessing.Process(target=self.ask_fx, args=(ask_s - self.config["bitflyer"]["scalping"], amount))
-            #    jobs.append(job)
-            #    job = multiprocessing.Process(target=self.bid_fx, args=(ask_s, amount))
-            #    jobs.append(job)
-
-            #[job.start() for job in jobs]
-            #[job.join() for job in jobs]
-
-            #th_ask = multiprocessing.Process(target=self.ask_fx, args=(rate - self.config["bitflyer"]["scalping"], amount))
-            #th_bid = multiprocessing.Process(target=self.bid_fx, args=(rate + self.config["bitflyer"]["scalping"], amount))
-
-            # 下降相場
-            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["bitflyer"]["scalping"]), amount))
-            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
-
-            #th1 = multiprocessing.Process(target=self.ask_fx, args=(int(ask_s - self.config["scalping"]), amount))
-            #th2 = multiprocessing.Process(target=self.bid_fx, args=(int(ask_s), amount))
-
-            #IFDCO
-            #self.IFDOCO(rate=bid_s, amount=amount)
-
-            #th1.start()
-            #th2.start()
-
-            #th1.join()
-            #th2.join()
-
-            # 買う
-            self.ask_fx(rate=int(ask_s - self.config["bitflyer"]["scalping"]), amount=amount)
-            # 売買できたか確認ループ
-            i = 0
-            while True:
-                # 1分間買えなかった場合キャンセルする
-                if i > 120:
-                    self.cancel_all_order_fx()
-                    return
-                response = self.get_incomplete_orders_fx()
-                if response.status_code == 200:
-                    orders = json.loads(response.text)
-                    ##空の場合
-                    if orders == []:
-                        break
-                    else:
-                        # API制限のため少し待つ
-                        i += 1
-                        time.sleep(0.5)
-
-            # 売る
-            self.bid_fx(rate=int(ask_s), amount=amount)
-            # 売買できたか確認ループ
-            while True:
-                response = self.get_incomplete_orders_fx()
-                if response.status_code == 200:
-                    orders = json.loads(response.text)
-                    ##空の場合
-                    if orders == []:
-                        break
-                    else:
-                        # API制限のため少し待つ
-                        time.sleep(0.5)
         # 終了
         return True
     
