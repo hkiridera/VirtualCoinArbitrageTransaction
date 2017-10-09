@@ -1,3 +1,5 @@
 config.yml
 .vscode/*
 *.pyc
+*.csv
+*.xlsx
