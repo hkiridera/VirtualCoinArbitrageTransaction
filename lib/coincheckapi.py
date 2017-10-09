@@ -11,9 +11,6 @@ import time
 import urllib
 import yaml
 
-from websocket import create_connection
-
-
 class CoincheckAPI():
     """
     docstring
@@ -43,18 +40,6 @@ class CoincheckAPI():
             bid = -1
 
         return ask, bid
-
-    def get_orderbook_streaming(self):
-        ws = create_connection("wss://ws-api.coincheck.com/")
-
-        ws.send(json.dumps({
-            "type": "subscribe",
-            "channel": "btc_jpy-orderbook"
-        }))
-
-        while True:
-            print (ws.recv())
-
 
     def ask(self, rate=0, amount=0):
         """
@@ -353,6 +338,3 @@ if __name__ == '__main__':
 
     # スキャルピング
     #api.scalping(amount)
-
-    # ストリーミング板
-    #api.get_orderbook_streaming()
