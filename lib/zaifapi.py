@@ -136,7 +136,7 @@ class ZaifAPI():
             if response.status_code == 200:
                 orders = json.loads(response.text)
                 ##空でない場合
-                if orders["orders"] == []:
+                if orders["return"] == {}:
                     break
                 elif i > 120:
                     self.cancel_all_order()
