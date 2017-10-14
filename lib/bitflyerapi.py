@@ -55,8 +55,8 @@ class BitflyerAPI():
         ## 失敗したら変な値を返す
         if response.status_code == 200: 
             ticker = json.loads(response.text)
-            sell = ticker["best_sell"]
-            buy = ticker["best_buy"]
+            sell = ticker["best_bid"]
+            buy = ticker["best_ask"]
             print "bitflyer_buy :" + str(buy)
             print "bitflyer_sell :" + str(sell)
         else:
@@ -125,8 +125,8 @@ class BitflyerAPI():
         ## 失敗したら変な値を返す
         if response.status_code == 200: 
             ticker = json.loads(response.text)
-            sell = ticker["best_sell"]
-            buy = ticker["best_buy"]
+            sell = ticker["best_ask"]
+            buy = ticker["best_bid"]
             print "bitflyer_buy :" + str(buy)
             print "bitflyer_sell :" + str(sell)
         else:
