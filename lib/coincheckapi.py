@@ -27,21 +27,21 @@ class CoincheckAPI():
         #payload = {'pair': 'XXBTZJPY'}
         response = myutils.get(self.base_url + "api/ticker")
 
-        ## 値の取得に成功したらaskとbidを返す
+        ## 値の取得に成功したらbuyとsellを返す
         ## 失敗したら変な値を返す
         if response.status_code == 200: 
             ticker = json.loads(response.text)
-            bid = ticker["bid"]
-            ask = ticker["ask"]
-            print "coincheck_ask :" + str(ask)
-            print "coincheck_bid :" + str(bid)
+            sell = ticker["sell"]
+            buy = ticker["buy"]
+            print "coincheck_buy :" + str(buy)
+            print "coincheck_sell :" + str(sell)
         else:
-            ask = 99999999999999
-            bid = -1
+            buy = 99999999999999
+            sell = -1
 
-        return ask, bid
+        return buy, sell
 
-    def ask(self, rate=0, amount=0):
+    def buy(self, rate=0, amount=0):
         """
         Uncertain
         """
@@ -84,7 +84,7 @@ class CoincheckAPI():
         return False
 
 
-    def bid(self, rate, amount):
+    def sell(self, rate, amount):
         """
         Uncertain
         """
@@ -132,10 +132,10 @@ class CoincheckAPI():
         """
 
         # 現在価格取得
-        ask, _ = self.get_ticker()
+        buy, _ = self.get_ticker()
 
         # 買う
-        self.ask(rate=int(ask - self.config["coincheck"]["scalping"]), amount=amount)
+        self.buy(rate=int(buy - self.config["coincheck"]["scalping"]), amount=amount)
 
         # 買えたか確認ループ
         i = 0
@@ -154,7 +154,7 @@ class CoincheckAPI():
                     time.sleep(0.5)
         
         # 売る
-        self.bid(rate=int(ask), amount=amount)
+        self.sell(rate=int(buy), amount=amount)
 
         # 売れたか確認ループ
         while True:
@@ -203,7 +203,7 @@ class CoincheckAPI():
 
         return jpy, btc
 
-    def check_bid(self, amount=0):
+    def check_sell(self, amount=0):
         _, btc = self.get_balance()
         print btc
         print amount
@@ -214,7 +214,7 @@ class CoincheckAPI():
         else:
             return False
 
-    def check_ask(self, amount=0):
+    def check_buy(self, amount=0):
         jpy, _ = self.get_balance()
         ## amount以上の円を持っている場合trueを返す
         if jpy >= amount:
@@ -292,49 +292,49 @@ class CoincheckAPI():
 
         return True
 
-    def all_bid(self):
+    def all_sell(self):
         '''
         全部売る
         '''
-        ask, bid = self.get_ticker()
+        buy, sell = self.get_ticker()
         jpy, btc = self.get_balance()
         if float(btc) > 0.0:
-            api.bid(rate=ask, amount=btc)
+            api.sell(rate=buy, amount=btc)
 
-    def initialize_ask(self):
+    def initialize_buy(self):
         '''
         開始前の初期購入
         '''
         api = CoincheckAPI()
         jpy, btc = api.get_balance()
         if self.config["amount"] > btc:
-            ask, bid = self.get_ticker()
-            api.ask(rate=ask, amount=self.config["amount"])
+            buy, sell = self.get_ticker()
+            api.buy(rate=buy, amount=self.config["amount"])
 
 if __name__ == '__main__':
     api = CoincheckAPI()
-    #ask, bid = api.get_ticker()
+    #buy, sell = api.get_ticker()
     #api.get_balance()
     
     #初期btc購入
-    #api.initialize_ask()
+    #api.initialize_buy()
 
     ## all orders canncelled
     #api.cancel_all_order()
 
     # 全売却
-    api.all_bid()
+    api.all_sell()
 
     # 未確定オーダー
     #api.get_incomplete_orders()
 
     ## buy & sell BTC
     amount = 0.005
-    #api.ask(rate=ask, amount=amount)
-    #api.bid(rate=bid, amount=amount)
+    #api.buy(rate=buy, amount=amount)
+    #api.sell(rate=sell, amount=amount)
     #pass
 
-    #print api.check_bid(amount=amount)
+    #print api.check_sell(amount=amount)
 
     # スキャルピング
     #api.scalping(amount)

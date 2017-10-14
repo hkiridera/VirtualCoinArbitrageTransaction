@@ -25,8 +25,8 @@ config.subscribe_key = 'sub-c-52a9ab50-291b-11e5-baaa-0619f8945a4f'
 config.reconnect_policy = PNReconnectionPolicy.LINEAR
 pubnub = PubNubTornado(config)
 
-bid_s = -1
-ask_s = -1
+sell_s = -1
+buy_s = -1
 
 f = open('b_ticker.csv', 'a')
 
@@ -51,19 +51,19 @@ class BitflyerAPI():
         #response = requests.get(self.base_url + "/v1/getticker", params=params)
         response = myutils.get(self.base_url + "/v1/getticker", params=params)
 
-        ## 値の取得に成功したらaskとbidを返す
+        ## 値の取得に成功したらbuyとsellを返す
         ## 失敗したら変な値を返す
         if response.status_code == 200: 
             ticker = json.loads(response.text)
-            bid = ticker["best_bid"]
-            ask = ticker["best_ask"]
-            print "bitflyer_ask :" + str(ask)
-            print "bitflyer_bid :" + str(bid)
+            sell = ticker["best_sell"]
+            buy = ticker["best_buy"]
+            print "bitflyer_buy :" + str(buy)
+            print "bitflyer_sell :" + str(sell)
         else:
-            ask = 99999999999999
-            bid = -1
+            buy = 99999999999999
+            sell = -1
 
-        return ask, bid
+        return buy, sell
 
     @gen.coroutine
     def _get_ticker_streaming(self):
@@ -96,12 +96,12 @@ class BitflyerAPI():
 
                 #print("%s : %s" % (message.channel, message.message))
                 #ticker = json.loads(message.message)
-                global bid_s,ask_s
-                bid_s = message.message["best_bid"]
-                ask_s = message.message["best_ask"]
-                #print bid_s, ask_s
+                global sell_s,buy_s
+                sell_s = message.message["best_sell"]
+                buy_s = message.message["best_buy"]
+                #print sell_s, buy_s
 
-                f.write("bid,ask," + str(bid_s) + "," + str(ask_s) +"\n")
+                f.write(time.time() + ",sell,buy," + str(sell_s) + "," + str(buy_s) +"\n")
 
         listener = BitflyerSubscriberCallback()
         pubnub.add_listener(listener)
@@ -121,21 +121,21 @@ class BitflyerAPI():
         #response = requests.get(self.base_url + "/v1/getticker", params=params)
         response = myutils.get(self.base_url + "/v1/getticker", params=params)
 
-        ## 値の取得に成功したらaskとbidを返す
+        ## 値の取得に成功したらbuyとsellを返す
         ## 失敗したら変な値を返す
         if response.status_code == 200: 
             ticker = json.loads(response.text)
-            bid = ticker["best_bid"]
-            ask = ticker["best_ask"]
-            print "bitflyer_ask :" + str(ask)
-            print "bitflyer_bid :" + str(bid)
+            sell = ticker["best_sell"]
+            buy = ticker["best_buy"]
+            print "bitflyer_buy :" + str(buy)
+            print "bitflyer_sell :" + str(sell)
         else:
-            ask = 99999999999999
-            bid = -1
+            buy = 99999999999999
+            sell = -1
 
-        return ask, bid
+        return buy, sell
 
-    def ask(self, rate, amount):
+    def buy(self, rate, amount):
         """
         docstring
         """
@@ -169,7 +169,7 @@ class BitflyerAPI():
             return True
         return False
 
-    def bid(self, rate, amount):
+    def sell(self, rate, amount):
         """
         Uncertain
         """
@@ -257,7 +257,7 @@ class BitflyerAPI():
         return False
 
 
-    def ask_fx(self, rate, amount):
+    def buy_fx(self, rate, amount):
         """
         docstring
         """
@@ -291,7 +291,7 @@ class BitflyerAPI():
             return True
         return False
 
-    def bid_fx(self, rate, amount):
+    def sell_fx(self, rate, amount):
         """
         Uncertain
         """
@@ -330,10 +330,10 @@ class BitflyerAPI():
         """
 
         # 現在価格取得
-        #ask, _ = self.get_ticker_fx()
+        #buy, _ = self.get_ticker_fx()
 
         # 買う
-        self.ask_fx(rate=int(ask_s - self.config["bitflyer"]["scalping"]), amount=amount)
+        self.buy_fx(rate=int(buy_s - self.config["bitflyer"]["scalping"]), amount=amount)
         # 売買できたか確認ループ
         i = 0
         while True:
@@ -353,7 +353,7 @@ class BitflyerAPI():
                     time.sleep(0.5)
 
         # 売る
-        self.bid_fx(rate=int(ask_s), amount=amount)
+        self.sell_fx(rate=int(buy_s), amount=amount)
         # 売買できたか確認ループ
         while True:
             response = self.get_incomplete_orders_fx()
@@ -409,7 +409,7 @@ class BitflyerAPI():
         return jpy, btc
 
 
-    def check_bid(self, amount=0):
+    def check_sell(self, amount=0):
         _, btc = self.get_balance()
         ## amount以上のbtcを持っている場合trueを返す
         if btc >= amount:
@@ -417,7 +417,7 @@ class BitflyerAPI():
         else:
             return False
 
-    def check_ask(self, amount=0):
+    def check_buy(self, amount=0):
         jpy, _ = self.get_balance()
         ## amount以上の円を持っている場合trueを返す
         if jpy >= amount:
@@ -560,16 +560,16 @@ class BitflyerAPI():
 
         return True
 
-    def all_bid(self):
+    def all_sell(self):
         '''
         全部売る
         '''
-        ask, bid = self.get_ticker()
+        buy, sell = self.get_ticker()
         jpy, btc = self.get_balance()
         if float(btc) > 0.0:
-            api.bid(rate=ask, amount=btc-0.001)
+            api.sell(rate=buy, amount=btc-0.001)
 
-    def initialize_ask(self):
+    def initialize_buy(self):
         '''
         開始前の初期購入
         足りなかったらamount分追加購入
@@ -577,8 +577,8 @@ class BitflyerAPI():
         api = BitflyerAPI()
         jpy, btc = api.get_balance()
         if self.config["amount"] > btc:
-            ask, bid = self.get_ticker()
-            api.ask(rate=ask, amount=self.config["amount"])
+            buy, sell = self.get_ticker()
+            api.buy(rate=buy, amount=self.config["amount"])
 
     def get_trading_commission(self):
         """
@@ -617,38 +617,38 @@ class BitflyerAPI():
 
 if __name__ == '__main__':
     api = BitflyerAPI()
-    #ask, bid = api.get_ticker()
+    #buy, sell = api.get_ticker()
     #api.get_balance()
     #pass
 
 
     #初期btc購入
-    #api.initialize_ask()
+    #api.initialize_buy()
 
     ## all orders canncelled
     #api.cancel_all_order()
 
     # 全売却
-    #api.all_bid()
+    api.all_sell()
 
     # 未確定オーダー
     #api.get_incomplete_orders()
-    api.get_incomplete_orders_fx()
+    #api.get_incomplete_orders_fx()
 
     #取引手数料
     #commissionrate = api.get_trading_commission()
 
     ## buy & sell BTC
-    amount = 0.005
-    #api.ask(rate=ask, amount=amount)
+    #amount = 0.005
+    #api.buy(rate=buy, amount=amount)
     #print amount
-    #api.bid(rate=bid, amount=amount)
+    #api.sell(rate=sell, amount=amount)
 
     # スキャルピング
     #api.scalping(amount)
 
     # streaming ticker
-    #api.get_ticker_streaming()
+    api.get_ticker_streaming()
 
     #time.sleep(3)
-    #print bid_s, ask_s
+    #print sell_s, buy_s

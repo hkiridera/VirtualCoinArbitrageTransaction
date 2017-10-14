@@ -33,21 +33,21 @@ class ZaifAPI():
         #response = requests.get(self.base_url + "ticker/btc_jpy")
         response = myutils.get(self.base_url + url_path)
 
-        ## 値の取得に成功したらaskとbidを返す
+        ## 値の取得に成功したらbuyとsellを返す
         ## 失敗したら変な値を返す
         if response.status_code == 200:
             ticker = json.loads(response.text)
-            bid = ticker["bid"]
-            ask = ticker["ask"]
-            print "zaif_ask :" + str(ask)
-            print "zaif_bid :" + str(bid)
+            sell = ticker["sell"]
+            buy = ticker["buy"]
+            print "zaif_buy :" + str(buy)
+            print "zaif_sell :" + str(sell)
         else:
-            ask = 99999999999999
-            bid = -1
+            buy = 99999999999999
+            sell = -1
 
-        return ask, bid
+        return buy, sell
 
-    def ask(self, rate, amount):
+    def buy(self, rate, amount):
         """
         Uncertain
         """
@@ -56,7 +56,7 @@ class ZaifAPI():
         data = {
             "method": "trade",
             "currency_pair": "btc_jpy",
-            "action": "ask",
+            "action": "buy",
             "price": rate,
             "amount": amount,
 
@@ -82,7 +82,7 @@ class ZaifAPI():
 
         return False
 
-    def bid(self, rate, amount):
+    def sell(self, rate, amount):
         """
         Uncertain
         """
@@ -92,7 +92,7 @@ class ZaifAPI():
         data = {
             "method": "trade",
             "currency_pair": "btc_jpy",
-            "action": "bid",
+            "action": "sell",
             "price": rate,
             "amount": amount,
 
@@ -124,10 +124,10 @@ class ZaifAPI():
         """
 
         # 現在価格取得
-        _, bid = self.get_ticker()
+        _, sell = self.get_ticker()
 
         # 買う
-        self.bid(rate=int(bid - self.config["zaif"]["scalping"]), amount=amount)
+        self.sell(rate=int(sell - self.config["zaif"]["scalping"]), amount=amount)
 
         # 買えたか確認ループ
         i = 0
@@ -146,7 +146,7 @@ class ZaifAPI():
                     time.sleep(0.5)
         
         # 売る
-        self.ask(rate=int(bid), amount=amount)
+        self.buy(rate=int(sell), amount=amount)
 
         # 売れたか確認ループ
         while True:
@@ -195,7 +195,7 @@ class ZaifAPI():
 
         return jpy, btc
 
-    def check_bid(self, amount=0):
+    def check_sell(self, amount=0):
         _, btc = self.get_balance()
         ## amount以上のbtcを持っている場合trueを返す
         if btc >= amount:
@@ -203,7 +203,7 @@ class ZaifAPI():
         else:
             return False
 
-    def check_ask(self, amount=0):
+    def check_buy(self, amount=0):
         jpy, _ = self.get_balance()
         ## amount以上の円を持っている場合trueを返す
         if jpy >= amount:
@@ -289,50 +289,50 @@ class ZaifAPI():
 
         return True
 
-    def all_bid(self):
+    def all_sell(self):
         '''
         全部売る
         '''
         api = ZaifAPI()
-        ask, bid = api.get_ticker()
+        buy, sell = api.get_ticker()
         jpy, btc = api.get_balance()
         if float(btc) > 0.0:
-            api.ask(rate=int(ask), amount=btc)
+            api.buy(rate=int(buy), amount=btc)
 
-    def initialize_ask(self):
+    def initialize_buy(self):
         '''
         開始前の初期購入
         '''
         api = ZaifAPI()
         jpy, btc = api.get_balance()
         if self.config["amount"] > btc:
-            ask, bid = self.get_ticker()
-            # zaifはbid askが逆
-            #api.ask(rate=ask, amount=self.config["amount"])
-            api.bid(rate=int(ask), amount=self.config["amount"])
+            buy, sell = self.get_ticker()
+            # zaifはsell buyが逆
+            #api.buy(rate=buy, amount=self.config["amount"])
+            api.sell(rate=int(buy), amount=self.config["amount"])
 
 if __name__ == '__main__':
     api = ZaifAPI()
-    #ask, bid = api.get_ticker()
+    #buy, sell = api.get_ticker()
     #api.get_balance()
 
     #api.get_incomplete_orders()
 
     #初期btc購入
-    #api.initialize_ask()
+    #api.initialize_buy()
 
     ## all orders canncelled
     #api.cancel_all_order()
 
     # 全売却
-    api.all_bid()
+    api.all_sell()
 
     ## buy & sell BTC
     amount = 0.005
     #買う
-    #api.bid(rate=int(bid), amount=amount)
+    #api.sell(rate=int(sell), amount=amount)
     #売る
-    #api.ask(rate=int(ask), amount=amount)
+    #api.buy(rate=int(buy), amount=amount)
         
     # スキャルピング
     #api.scalping(amount)

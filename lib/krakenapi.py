@@ -32,21 +32,21 @@ class krakenfAPI():
         #response = requests.get(self.base_url + "/0/public/Ticker", params=params)
         response = myutils.get(self.base_url + "/0/public/Ticker", params=params)
 
-        ## 値の取得に成功したらaskとbidを返す
+        ## 値の取得に成功したらbuyとsellを返す
         ## 失敗したら変な値を返す
         if response.status_code == 200: 
             ticker = json.loads(response.text)
-            bid = float(ticker["result"]["XXBTZJPY"]["b"][0])
-            ask = float(ticker["result"]["XXBTZJPY"]["a"][0])
-            print "kraken_ask :" + str(ask)
-            print "kraken_bid :" + str(bid)
+            sell = float(ticker["result"]["XXBTZJPY"]["b"][0])
+            buy = float(ticker["result"]["XXBTZJPY"]["a"][0])
+            print "kraken_buy :" + str(buy)
+            print "kraken_sell :" + str(sell)
         else:
-            ask = 99999999999999
-            bid = -1
+            buy = 99999999999999
+            sell = -1
 
-        return ask, bid
+        return buy, sell
 
-    def ask(self, rate, amount):
+    def buy(self, rate, amount):
         """
         Uncertain
         """
@@ -91,7 +91,7 @@ class krakenfAPI():
         return False
 
 
-    def bid(self, rate, amount):
+    def sell(self, rate, amount):
         """
         Uncertain
         """
@@ -142,10 +142,10 @@ class krakenfAPI():
         """
 
         # 現在価格取得
-        ask, _ = self.get_ticker()
+        buy, _ = self.get_ticker()
 
         # 買う
-        self.ask(rate=int(ask - self.config["kraken"]["scalping"]), amount=amount)
+        self.buy(rate=int(buy - self.config["kraken"]["scalping"]), amount=amount)
 
         # 買えたか確認ループ
         while True:
@@ -157,7 +157,7 @@ class krakenfAPI():
                     break
         
         # 売る
-        self.bid(rate=int(ask), amount=amount)
+        self.sell(rate=int(buy), amount=amount)
 
         # 売れたか確認ループ
         while True:
@@ -206,7 +206,7 @@ class krakenfAPI():
 
         #return jpy, btc
 
-    def check_bid(self, amount=0):
+    def check_sell(self, amount=0):
         _, btc = self.get_balance()
         ## amount以上のbtcを持っている場合trueを返す
         if btc >= amount:
@@ -214,7 +214,7 @@ class krakenfAPI():
         else:
             return False
 
-    def check_ask(self, amount=0):
+    def check_buy(self, amount=0):
         jpy, _ = self.get_balance()
         ## amount以上の円を持っている場合trueを返す
         if jpy >= amount:
@@ -282,25 +282,25 @@ class krakenfAPI():
 
         return response
 
-    def all_bid(self):
+    def all_sell(self):
         '''
         全部売る
         '''
         api = krakenfAPI()
-        ask, bid = api.get_ticker()
+        buy, sell = api.get_ticker()
         jpy, btc = api.get_balance()
         if float(btc) > 0.0:
-            api.bid(rate=ask, amount=btc)
+            api.sell(rate=buy, amount=btc)
 
-    def initialize_ask(self):
+    def initialize_buy(self):
         '''
         開始前の初期購入
         '''
         api = krakenfAPI()
         jpy, btc = api.get_balance()
         if self.config["amount"] > btc:
-            ask, bid = self.get_ticker()
-            api.ask(rate=ask, amount=self.config["amount"])
+            buy, sell = self.get_ticker()
+            api.buy(rate=buy, amount=self.config["amount"])
 
 
 if __name__ == '__main__':
