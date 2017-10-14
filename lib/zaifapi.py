@@ -37,8 +37,8 @@ class ZaifAPI():
         ## 失敗したら変な値を返す
         if response.status_code == 200:
             ticker = json.loads(response.text)
-            sell = ticker["sell"]
-            buy = ticker["buy"]
+            sell = ticker["ask"]
+            buy = ticker["bid"]
             print "zaif_buy :" + str(buy)
             print "zaif_sell :" + str(sell)
         else:

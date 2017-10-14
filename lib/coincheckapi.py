@@ -31,8 +31,8 @@ class CoincheckAPI():
         ## 失敗したら変な値を返す
         if response.status_code == 200: 
             ticker = json.loads(response.text)
-            sell = ticker["sell"]
-            buy = ticker["buy"]
+            sell = ticker["ask"]
+            buy = ticker["bid"]
             print "coincheck_buy :" + str(buy)
             print "coincheck_sell :" + str(sell)
         else:
@@ -80,6 +80,8 @@ class CoincheckAPI():
             ## send messege to slack
             myutils.post_slack(name="さやちゃん", text="Coincheckで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
             return True
+        else:
+            self.buy(rate=rate, amount=amount)
         
         return False
 
@@ -123,6 +125,8 @@ class CoincheckAPI():
             ## send messege to slack
             myutils.post_slack(name="さやちゃん", text="Coincheckで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
             return True
+        else:
+            self.sell(rate=rate, amount=amount)
 
         return False
 
@@ -155,6 +159,47 @@ class CoincheckAPI():
         
         # 売る
         self.sell(rate=int(buy), amount=amount)
+
+        # 売れたか確認ループ
+        while True:
+            response = self.get_incomplete_orders()
+            if response.status_code == 200:
+                orders = json.loads(response.text)
+                ##空でない場合
+                if orders["orders"] == []:
+                    break
+                else:
+                    time.sleep(0.5)
+
+        # 終了
+        return True
+
+    def IFD(self, amount, buy, sell):
+        """
+        Uncertain
+        """
+
+        # 買う
+        self.buy(rate=int(buy), amount=amount)
+
+        # 買えたか確認ループ
+        i = 0
+        while True:
+            response = self.get_incomplete_orders()
+            if response.status_code == 200:
+                orders = json.loads(response.text)
+                ##空でない場合
+                if orders["orders"] == []:
+                    break
+                elif i > 120:
+                    self.cancel_all_order()
+                    return
+                else:
+                    i += 1
+                    time.sleep(0.5)
+        
+        # 売る
+        self.sell(rate=int(sell), amount=amount)
 
         # 売れたか確認ループ
         while True:
