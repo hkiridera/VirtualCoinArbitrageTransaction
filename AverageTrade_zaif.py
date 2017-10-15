@@ -66,7 +66,7 @@ def main():
     # coincheck
     av_buy, av_sell, z_buy, z_sell = average()
     if (av_buy)> z_buy:
-        z_api.IFD(config["coincheck"]["amount"], buy=z_buy, sell=av_sell)
+        z_api.IFD(config["zaif"]["amount"], buy=z_buy, sell=av_sell)
 
 if __name__ == "__main__":
 
