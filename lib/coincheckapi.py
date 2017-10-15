@@ -73,18 +73,14 @@ class CoincheckAPI():
             'ACCESS-NONCE': nonce
         }
 
-        #response = requests.post(self.base_url + url_path, headers=headers, data=data)
-        response = myutils.post(self.base_url + url_path, headers, data)
+        while True:
+            #response = requests.post(self.base_url + url_path, headers=headers, data=data)
+            response = myutils.post(self.base_url + url_path, headers, data)
 
-        if response.status_code == 200:
-            ## send messege to slack
-            myutils.post_slack(name="さやちゃん", text="Coincheckで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
-            return True
-        else:
-            self.buy(rate=rate, amount=amount)
-        
-        return False
-
+            if response.status_code == 200:
+                ## send messege to slack
+                myutils.post_slack(name="さやちゃん", text="Coincheckで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
+                return True
 
     def sell(self, rate, amount):
         """
@@ -119,16 +115,13 @@ class CoincheckAPI():
             'ACCESS-NONCE': nonce
         }
 
-        #response = requests.post(self.base_url + url_path, headers=headers, data=data)
-        response = myutils.post(self.base_url + url_path, headers, data)
-        if response.status_code == 200:
-            ## send messege to slack
-            myutils.post_slack(name="さやちゃん", text="Coincheckで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
-            return True
-        else:
-            self.sell(rate=rate, amount=amount)
-
-        return False
+        while True:
+            #response = requests.post(self.base_url + url_path, headers=headers, data=data)
+            response = myutils.post(self.base_url + url_path, headers, data)
+            if response.status_code == 200:
+                ## send messege to slack
+                myutils.post_slack(name="さやちゃん", text="Coincheckで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
+                return True
 
     def scalping(self, amount):
         """
