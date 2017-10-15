@@ -73,14 +73,13 @@ class ZaifAPI():
             'sign': signature
         }
 
-        #response = requests.post(self.base_url + "tapi", headers=headers, data=data)
-        response = myutils.post(self.base_url2, headers, data)
-        if response.status_code == 200:
-            ## send messege to slack
-            myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
-            return True
-
-        return False
+        while True:
+            #response = requests.post(self.base_url + "tapi", headers=headers, data=data)
+            response = myutils.post(self.base_url2, headers, data)
+            if response.status_code == 200:
+                ## send messege to slack
+                myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
+                return True
 
     def sell(self, rate, amount):
         """
@@ -109,14 +108,14 @@ class ZaifAPI():
             'sign': signature
         }
 
-        #response = requests.post(self.base_url + "tapi", headers=headers, data=data)
-        response = myutils.post(self.base_url2, headers, data)
+        while True:
+            #response = requests.post(self.base_url + "tapi", headers=headers, data=data)
+            response = myutils.post(self.base_url2, headers, data)
 
-        if response.status_code == 200:
-            ## send messege to slack
-            myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
-            return True
-        return False
+            if response.status_code == 200:
+                ## send messege to slack
+                myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
+                return True
 
     def scalping(self, amount):
         """
@@ -128,6 +127,48 @@ class ZaifAPI():
 
         # 買う
         self.sell(rate=int(sell - self.config["zaif"]["scalping"]), amount=amount)
+
+        # 買えたか確認ループ
+        i = 0
+        while True:
+            response = self.get_incomplete_orders()
+            if response.status_code == 200:
+                orders = json.loads(response.text)
+                ##空でない場合
+                if orders["return"] == {}:
+                    break
+                elif i > 10:
+                    self.cancel_all_order()
+                    return
+                else:
+                    i += 1
+                    time.sleep(0.5)
+        
+        # 売る
+        self.buy(rate=int(sell), amount=amount)
+
+        # 売れたか確認ループ
+        while True:
+            response = self.get_incomplete_orders()
+            if response.status_code == 200:
+                orders = json.loads(response.text)
+                ##空でない場合
+                if orders["return"] == {}:
+                    break
+
+        # 終了
+        return True
+
+    def IFD(self, amount, buy, sell):
+        """
+        Uncertain
+        """
+
+        # 現在価格取得
+        _, sell = self.get_ticker()
+
+        # 買う
+        self.sell(rate=int(buy), amount=amount)
 
         # 買えたか確認ループ
         i = 0
