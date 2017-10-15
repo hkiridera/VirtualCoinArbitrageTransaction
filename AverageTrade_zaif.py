@@ -65,6 +65,8 @@ def main():
     ## 板価格を取得
     # coincheck
     av_buy, av_sell, z_buy, z_sell = average()
+    z_buy = z_buy - z_buy % 5 
+    av_sell = av_sell - av_sell % 5 
     if (av_buy)> z_buy:
         z_api.IFD(config["zaif"]["amount"], buy=z_buy, sell=av_sell)
 
