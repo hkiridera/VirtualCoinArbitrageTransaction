@@ -29,22 +29,20 @@ class krakenfAPI():
         docstring
         """
         params = {'pair': 'XXBTZJPY'}
-        #response = requests.get(self.base_url + "/0/public/Ticker", params=params)
-        response = myutils.get(self.base_url + "/0/public/Ticker", params=params)
 
-        ## 値の取得に成功したらbuyとsellを返す
-        ## 失敗したら変な値を返す
-        if response.status_code == 200: 
-            ticker = json.loads(response.text)
-            sell = float(ticker["result"]["XXBTZJPY"]["b"][0])
-            buy = float(ticker["result"]["XXBTZJPY"]["a"][0])
-            print "kraken_buy :" + str(buy)
-            print "kraken_sell :" + str(sell)
-        else:
-            buy = 99999999999999
-            sell = -1
+        while True:
+            #response = requests.get(self.base_url + "/0/public/Ticker", params=params)
+            response = myutils.get(self.base_url + "/0/public/Ticker", params=params)
 
-        return buy, sell
+            ## 値の取得に成功したらbuyとsellを返す
+            ## 失敗したら変な値を返す
+            if response.status_code == 200: 
+                ticker = json.loads(response.text)
+                sell = float(ticker["result"]["XXBTZJPY"]["b"][0])
+                buy = float(ticker["result"]["XXBTZJPY"]["a"][0])
+                print "kraken_buy :" + str(buy)
+                print "kraken_sell :" + str(sell)
+                return buy, sell
 
     def buy(self, rate, amount):
         """

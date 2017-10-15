@@ -48,22 +48,20 @@ class BitflyerAPI():
         docstring
         """
         params = {"product_code": "BTC_JPY"}
-        #response = requests.get(self.base_url + "/v1/getticker", params=params)
-        response = myutils.get(self.base_url + "/v1/getticker", params=params)
 
-        ## 値の取得に成功したらbuyとsellを返す
-        ## 失敗したら変な値を返す
-        if response.status_code == 200: 
-            ticker = json.loads(response.text)
-            sell = ticker["best_bid"]
-            buy = ticker["best_ask"]
-            print "bitflyer_buy :" + str(buy)
-            print "bitflyer_sell :" + str(sell)
-        else:
-            buy = 99999999999999
-            sell = -1
+        while True:
+            #response = requests.get(self.base_url + "/v1/getticker", params=params)
+            response = myutils.get(self.base_url + "/v1/getticker", params=params)
 
-        return buy, sell
+            ## 値の取得に成功したらbuyとsellを返す
+            ## 失敗したら変な値を返す
+            if response.status_code == 200:
+                ticker = json.loads(response.text)
+                sell = ticker["best_bid"]
+                buy = ticker["best_ask"]
+                print "bitflyer_buy :" + str(buy)
+                print "bitflyer_sell :" + str(sell)
+                return buy, sell
 
     @gen.coroutine
     def _get_ticker_streaming(self):
@@ -256,6 +254,51 @@ class BitflyerAPI():
             return True
         return False
 
+    def IFD(self, amount, buy, sell):
+        """
+        docstring
+        """
+        nonce = myutils.nonce2()
+        url = self.base_url
+        url_path = "/v1/me/sendparentorder"
+
+        data = {
+            "order_method": "IFD",
+            "minute_to_expire": self.config["bitflyer"]["minute_to_expire"],
+            "time_in_force": "GTC",
+            "parameters": [{
+                "product_code": "FX_BTC_JPY",
+                "condition_type": "LIMIT",
+                "side": "BUY",
+                "price": buy,
+                "size": amount
+            },
+            {
+                "product_code": "FX_BTC_JPY",
+                "condition_type": "LIMIT",
+                "side": "SELL",
+                "price": sell,
+                "size": amount
+            }]
+        }
+
+        signature = self._signature(nonce=nonce, method="POST", url_path=url_path, data=data)
+
+        headers = {
+            'ACCESS-KEY': self.config["bitflyer"]["ACCESS_KEY"],
+            'ACCESS-SIGN': signature,
+            'ACCESS-TIMESTAMP': nonce,
+            "Content-Type": "application/json"
+        }
+
+        #response = requests.post(self.base_url + url_path, headers=headers, data=data)
+        response = myutils.post(url=self.base_url + url_path, headers=headers, data=json.dumps(data))
+
+        if response.status_code == 200:
+            ## send messege to slack
+            myutils.post_slack(name="さやちゃん", text="Bitflyerで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
+            return True
+        return False
 
     def buy_fx(self, rate, amount):
         """

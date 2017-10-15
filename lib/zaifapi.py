@@ -30,22 +30,20 @@ class ZaifAPI():
         docstring
         """
         url_path = "ticker/btc_jpy"
-        #response = requests.get(self.base_url + "ticker/btc_jpy")
-        response = myutils.get(self.base_url + url_path)
 
-        ## 値の取得に成功したらbuyとsellを返す
-        ## 失敗したら変な値を返す
-        if response.status_code == 200:
-            ticker = json.loads(response.text)
-            sell = ticker["ask"]
-            buy = ticker["bid"]
-            print "zaif_buy :" + str(buy)
-            print "zaif_sell :" + str(sell)
-        else:
-            buy = 99999999999999
-            sell = -1
+        while True:
+            #response = requests.get(self.base_url + "ticker/btc_jpy")
+            response = myutils.get(self.base_url + url_path)
 
-        return buy, sell
+            ## 値の取得に成功したらbuyとsellを返す
+            ## 失敗したら変な値を返す
+            if response.status_code == 200:
+                ticker = json.loads(response.text)
+                sell = ticker["ask"]
+                buy = ticker["bid"]
+                print "zaif_buy :" + str(buy)
+                print "zaif_sell :" + str(sell)
+                return buy, sell
 
     def buy(self, rate, amount):
         """
@@ -56,7 +54,7 @@ class ZaifAPI():
         data = {
             "method": "trade",
             "currency_pair": "btc_jpy",
-            "action": "buy",
+            "action": "bid",
             "price": rate,
             "amount": amount,
 
@@ -78,7 +76,7 @@ class ZaifAPI():
             response = myutils.post(self.base_url2, headers, data)
             if response.status_code == 200:
                 ## send messege to slack
-                myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で売っといたよ")
+                myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
                 return True
 
     def sell(self, rate, amount):
@@ -91,7 +89,7 @@ class ZaifAPI():
         data = {
             "method": "trade",
             "currency_pair": "btc_jpy",
-            "action": "sell",
+            "action": "ask",
             "price": rate,
             "amount": amount,
 
@@ -114,7 +112,7 @@ class ZaifAPI():
 
             if response.status_code == 200:
                 ## send messege to slack
-                myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で買っといたよ")
+                myutils.post_slack(name="さやちゃん", text="Zaifで" + str(amount) + "BTCを" + str(rate) + "で売といたよ")
                 return True
 
     def scalping(self, amount):
@@ -163,12 +161,9 @@ class ZaifAPI():
         """
         Uncertain
         """
-
-        # 現在価格取得
-        _, sell = self.get_ticker()
-
+        print buy, sell
         # 買う
-        self.sell(rate=int(buy), amount=amount)
+        self.buy(rate=int(buy), amount=amount)
 
         # 買えたか確認ループ
         i = 0
@@ -179,15 +174,15 @@ class ZaifAPI():
                 ##空でない場合
                 if orders["return"] == {}:
                     break
-                elif i > 10:
+                elif i > 120:
                     self.cancel_all_order()
                     return
                 else:
                     i += 1
-                    time.sleep(0.5)
+                    time.sleep(10)
         
         # 売る
-        self.buy(rate=int(sell), amount=amount)
+        self.sell(rate=int(sell), amount=amount)
 
         # 売れたか確認ループ
         while True:
@@ -197,6 +192,8 @@ class ZaifAPI():
                 ##空でない場合
                 if orders["return"] == {}:
                     break
+                else:
+                    time.sleep(10)
 
         # 終了
         return True
@@ -366,7 +363,7 @@ if __name__ == '__main__':
     #api.cancel_all_order()
 
     # 全売却
-    api.all_sell()
+    #api.all_sell()
 
     ## buy & sell BTC
     amount = 0.005

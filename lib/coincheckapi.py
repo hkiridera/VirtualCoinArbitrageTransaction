@@ -25,21 +25,19 @@ class CoincheckAPI():
         docstring
         """
         #payload = {'pair': 'XXBTZJPY'}
-        response = myutils.get(self.base_url + "api/ticker")
 
-        ## 値の取得に成功したらbuyとsellを返す
-        ## 失敗したら変な値を返す
-        if response.status_code == 200: 
-            ticker = json.loads(response.text)
-            sell = ticker["ask"]
-            buy = ticker["bid"]
-            print "coincheck_buy :" + str(buy)
-            print "coincheck_sell :" + str(sell)
-        else:
-            buy = 99999999999999
-            sell = -1
+        while True:
+            response = myutils.get(self.base_url + "api/ticker")
 
-        return buy, sell
+            ## 値の取得に成功したらbuyとsellを返す
+            ## 失敗したら変な値を返す
+            if response.status_code == 200: 
+                ticker = json.loads(response.text)
+                sell = ticker["ask"]
+                buy = ticker["bid"]
+                print "coincheck_buy :" + str(buy)
+                print "coincheck_sell :" + str(sell)
+                return buy, sell
 
     def buy(self, rate=0, amount=0):
         """
